@@ -38,7 +38,7 @@ RUN lein cljsbuild once
 COPY docker/entrypoint.sh /sbin/entrypoint.sh
 RUN chmod +x /sbin/entrypoint.sh
 
-EXPOSE 3500/tcp
+EXPOSE 3000/tcp
 
 VOLUME ["${ALIBI_DATA_DIR}"]
 ENTRYPOINT ["/sbin/entrypoint.sh"]

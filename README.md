@@ -22,19 +22,12 @@ This is far from a fully fledged time tracker, yet it has the following features
 
 ## Getting started
 
-### Docker
+## Docker
 
-If you just want to play around a little you can do that by building and running the docker image:
+If you just want to play around a little you can do that by running the docker image:
 
+    docker run -p 3500:3500 infi/alibi-demo
     docker build . -t infi/alibi
-
-    # Create project "Alibi" with one regular and one overhead-task
-    docker run -v /local/path/to/data:/opt/alibi/data infi/alibi app:projects create :name "Alibi" :billing-method :hourly # returns <id>
-    docker run -v /local/path/to/data:/opt/alibi/data infi/alibi app:tasks create :name "MyTask" :for-project <id>
-    docker run -v /local/path/to/data:/opt/alibi/data infi/alibi app:tasks create :name "MyOverheadTask" :for-project <id> :billing-method :overhead
-
-    # Run the application
-    docker run -v /local/path/to/data:/opt/alibi/data -p 3500:3500 infi/alibi
 
 Open http://localhost:3500 in the browser and you should be able to fiddle around.
 
@@ -84,6 +77,21 @@ lein with-profile local ring server-headless
 
 If everything went well, there should now be a web server running on http://localhost:3000. Navigate to it and have fun!
 
+## Building a Docker image
+
+You can run Alibi in a Docker:
+
+    docker build . -t infi/alibi
+
+    # Create project "Alibi" with one regular and one overhead-task
+    docker run -v /local/path/to/data:/opt/alibi/data infi/alibi app:projects create :name "Alibi" :billing-method :hourly # returns <id>
+    docker run -v /local/path/to/data:/opt/alibi/data infi/alibi app:tasks create :name "MyTask" :for-project <id>
+    docker run -v /local/path/to/data:/opt/alibi/data infi/alibi app:tasks create :name "MyOverheadTask" :for-project <id> :billing-method :overhead
+
+    # Run the application
+    docker run -v /local/path/to/data:/opt/alibi/data -p 3500:3000 infi/alibi
+
+Alibi should now be running at http://localhost:3500.
 
 ## Acknowledgements
 
