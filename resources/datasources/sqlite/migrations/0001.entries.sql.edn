@@ -1,0 +1,3 @@
+["CREATE TABLE entries (id integer primary key autoincrement, for_date text not null, start_time text not null, end_time text not null, user_id int not null, comment text, is_billable int not null, is_billed int not null, task_id int not null)"
+"CREATE INDEX entries_user_id_for_date on entries (user_id,for_date)"
+"insert into db_migrations (version,filename) values(1, '0001.entries.sql.edn')"]

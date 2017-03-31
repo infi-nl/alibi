@@ -1,0 +1,7 @@
+[
+"create table db_migrations (version integer primary key not null,
+        filename text not null,
+        rundate text not null default (datetime()))"
+"insert into db_migrations (version,filename)
+values(0,'0000.db_migrations.sql.edn')"
+]

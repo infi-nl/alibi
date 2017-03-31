@@ -1,0 +1,66 @@
+<input type="hidden" id="day-entry-table-for-date" value="{{entries-for-day.for-date}}" />
+<div class="col-md-offset-0 col-md-6">
+<div class="panel panel-default">
+<div class="day-entry-table-container panel-body">
+  <h4 class="day-entry-table-table-header">Entries for {{entries-for-day.formatted-date}}</h4>
+<table class="day-entry-table-table">
+<thead>
+<tr>
+<th style="width: 100%;text-align: left;">Task</th>
+<th style="width: 0px;text-align: center;">Billable</th>
+<th style="width: 20px;text-align: center;">From</th>
+<th style="width: 20px;text-align: center;">To</th>
+<th style="width: 20px;text-align: center;">Duration</th>
+<td></td>
+</tr>
+</thead>
+<tbody>
+{% if entries-for-day.entries.entries|empty? %}
+<tr class="day-entry-table-entry-row">
+  <td colspan="6">
+    <div>No entries for this day</div>
+  </td>
+</tr>
+{% endif %}
+{% for entry in entries-for-day.entries.entries %}
+<tr class="day-entry-table-entry-row">
+<td style="width: 100%; text-align: left;" class="day-entry-table-entry day-entry-table-entry-project">
+<div>{{entry.project}} / {{entry.task}}</div>
+</td>
+<td style="width: 0px; text-align: center;">
+<div>{% if entry.billable? %}
+<i class="glyphicon glyphicon-ok" style="color: #bbb;"></i>
+{% endif %}
+</div>
+</td>
+<td style="width: 20px; text-align: right;" class="day-entry-table-entry day-entry-table-time-value">
+<div>{{entry.start-time}}</div>
+</td>
+<td style="width: 20px; text-align: right;" class="day-entry-table-entry day-entry-table-time-value">
+<div>{{entry.end-time}}</div>
+</td>
+<td style="width: 20px; text-align: right;" class="day-entry-table-entry day-entry-table-time-value">
+<div>{{entry.duration}}</div>
+</td>
+</tr>
+{% if entry.comment %}
+<tr>
+<td colspan="6">
+  <div class="day-entry-table-entry-comment">{{entry.comment}}</div>
+</td>
+</tr>
+{% endif %}
+{% endfor %}
+
+</tbody>
+<tfoot>
+<tr>
+<td colspan="4" style="width: 100%; text-align: left;"><strong>Total:</strong></td>
+<td class="day-entry-table-time-value" style="width: 20px; text-align: right;"><strong>{{entries-for-day.entries.aggregates.total-duration}}</strong></td>
+<td></td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+</div>

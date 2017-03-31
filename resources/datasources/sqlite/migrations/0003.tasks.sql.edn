@@ -1,0 +1,5 @@
+["CREATE TABLE tasks (id integer primary key autoincrement,
+                      project_id integer,
+                      name text,
+                      billing_type text)"
+"insert into db_migrations (version,filename) values(3, '0003.tasks.sql.edn')"]

@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block body %} 
+<input type="hidden" id="view-data" value="{{view-data}}" />
+<div class="row row-entry-form">
+  <div class="col-md-8 col-md-offset-2" id="entry-form-react-container">
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12" id="activity-graphic">
+  </div>
+</div>
+<div class="row day-entry-table-row" id="day-entry-table">
+{% include "day-entries-table.html" %}
+</div>
+{% endblock %}
+
+{% block end-of-body %}
+<div id="activity-graphic-tooltip-container">
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/css/selectize.bootstrap3.min.css" integrity="sha256-xaHB15TZbLhew82A2NzY8rvCCp/REcOA/kSpWWO7TlE=" crossorigin="anonymous" />
+{% endblock %}
+
+{% block javascript %}
+<script src="/js/fuzzy.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/js/standalone/selectize.js" integrity="sha256-YhmtrYJDSZgZFL8jDCR8VNOV/iigJPZYNCk8L9J72Hk=" crossorigin="anonymous"></script>
+<script src="/dist/cljs/alibi.js"></script>
+{% endblock %}

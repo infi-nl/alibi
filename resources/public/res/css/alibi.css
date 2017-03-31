@@ -1,0 +1,278 @@
+.form-inline .time-entry-input {
+    width: 70px;
+}
+
+.input-group-datepicker {
+    width: 150px;
+}
+
+.form-group-inline {
+    float: left;
+    margin-right: 15px;
+}
+
+.form-group-inline:last-child {
+    margin-right: 0px;
+}
+
+.form-group-inline .help-block {
+    margin-bottom: 0;
+}
+
+#activity-svg-container {
+  /*border: 1px solid blue;*/
+}
+
+#activity-graphic {
+  /*background-color: #d3d3cf;*/
+    /*background-color: #f8f8f8;*/
+}
+
+#activity-svg-container {
+  font-family: georgia;
+}
+
+.day-container {
+  stroke: gray;
+  fill:none;
+}
+
+.time-line {
+}
+
+.time-line.day-summary {
+    stroke-width: 1px;
+}
+
+.hour-line {
+  stroke: #708f99;
+  cursor: pointer;
+  stroke-width: 8px;
+}
+
+.hour-line-is-billable {
+  stroke: #b3cfdc;
+}
+
+.billable-line {
+  stroke: blue;
+}
+
+.not-billable-line {
+  stroke: red;
+
+}
+
+.booked-line {
+  stroke: black;
+
+}
+
+.project-label,.compound-label {
+  font-size: 8pt;
+  fill: #737373;
+}
+
+.time-label {
+  font-size: 8pt;
+}
+
+.project-heading {
+    font-size: 10pt;
+    fill: #3e3e3e;
+}
+
+.grid-day-separator {
+    /*stroke: #e7e7e7;*/
+    stroke: #ddd;
+    stroke-width: 0.5;
+}
+
+.grid-time-label {
+    font-size: 8pt;
+    fill: #737373;
+}
+
+.grid-day-label {
+    fill: #737373;
+    font-size: 14px;
+}
+
+.grid-day-label:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.grid-day-label-is-selected {
+    text-decoration: underline;
+    font-size:16px;
+}
+
+.day-summary-label {
+    fill: #737373;
+    font-size: 8pt;
+}
+
+.time-line.day-complete-complete {
+    stroke: green;
+}
+
+.day-summary-label .day-complete-complete {
+    fill: green;
+}
+
+.time-line.day-complete-not-complete {
+    stroke: #a03737;
+}
+
+.day-summary-label .day-complete-not-complete {
+    fill: #a03737;
+}
+
+.hour-entry-active {
+  fill:white;;
+}
+
+.now-indicator {
+  stroke: #dca5a5;
+  stroke-width: 1;
+}
+
+.selected-date-highlight {
+  fill:#effafb;
+}
+
+.row-entry-form {
+    margin-bottom: 0px;
+}
+
+#entry-form-container {
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 0.4s ease 0s;
+}
+
+#entry-form-container.entry-form-visible {
+  max-height: 250px;
+}
+
+#entry-form-container.has-errors {
+  overflow: visible;
+}
+
+.navbar-form-post-new-entry-bar {
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-bottom: 0px;
+}
+
+.form-inline-no-horz-margin .form-group {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.entry-form .form-inline .help-block {
+    margin-top: 0;
+}
+
+.entry-form .form-group {
+    margin-bottom: 5px;
+}
+
+.entry-form .help-block {
+    margin-bottom: 5px;
+}
+
+.entry-form.form-horizontal .checkbox {
+    padding-top: 0px;
+}
+
+.day-entry-table-row {
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+.day-entry-table-container {
+  /*border: 1px solid #ddd;*/
+  /*padding: 15px;*/
+  font-size: 9pt;;
+  color: #666;
+}
+
+.day-entry-table-time-value {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.day-entry-table-entry-comment {
+  /*margin-left:5px;*/
+  /*font-family: "georgia";*/
+  /*background-color: #eee;*/
+  font-size:0.9em;
+  /*border-top: 1px solid #eee;*/
+}
+
+.day-entry-table-table thead {
+  border-bottom: 1px solid #ddd;
+}
+.day-entry-table-table tfoot {
+  border-top: 1px solid #ddd;
+}
+
+.day-entry-table-table tbody td {
+  /*font-family: helvetica;*/
+}
+
+.day-entry-table-table th {
+  color: #888;
+}
+.day-entry-table-table-header {
+  margin-bottom: 5px;
+  margin-top: 0px;
+}
+
+.day-entry-table-entry-project, .day-entry-table-entry-task {
+  font-size: 1.2em;
+}
+
+.day-entry-table-entry-row:first-child .day-entry-table-entry > div {
+  margin-top: 0px;
+}
+.day-entry-table-entry > div {
+  margin-top: 5px;
+}
+
+.billing-method-badge {
+  color: white;
+  font-size:15px;
+  text-align: center;
+  border-radius: 3px;
+  padding: 1px 2px;
+  opacity: 0.75;
+}
+
+.billing-method-badge-overhead {
+  background-color: #b94a48;
+}
+
+.billing-method-badge-nacalculatie,.billing-method-badge-hourly {
+  background-color: #468847;
+}
+
+.billing-method-badge-fixed-price {
+  /*TODO: untested since we don't do nacalculatie anymore*/
+  background-color: #3a87ad;
+}
+
+#post-new-entry-bar .selectize-input .option-selected .billing-method-badge{
+  position: absolute;
+  right: 30px;
+}
+
+.entry-form-errors {
+    display: none;
+}
+
+.entry-form-errors-has-errors {
+    display: block;
+}

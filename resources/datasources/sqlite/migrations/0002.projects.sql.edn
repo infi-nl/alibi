@@ -1,0 +1,4 @@
+["CREATE TABLE projects (id integer primary key autoincrement,
+                         name text,
+                         billing_type text)"
+"insert into db_migrations (version,filename) values(2, '0002.projects.sql.edn')"]
