@@ -28,7 +28,7 @@ If you just want to play around a little you can do that by running the docker i
 
     docker run -p 3000:3000 infinl/alibi-demo
 
-Open http://localhost:3500 in the browser and you should be able to fiddle around.
+Open http://localhost:3000 in the browser and you should be able to fiddle around.
 
 ### Run with leinigen
 
