@@ -26,8 +26,7 @@ This is far from a fully fledged time tracker, yet it has the following features
 
 If you just want to play around a little you can do that by running the docker image:
 
-    docker run -p 3500:3500 infi/alibi-demo
-    docker build . -t infi/alibi
+    docker run -p 3000:3000 infi/alibi-demo
 
 Open http://localhost:3500 in the browser and you should be able to fiddle around.
 
