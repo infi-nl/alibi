@@ -1,9 +1,7 @@
 (ns alibi.activity-graphic
-  (:require [cljsjs.react]
-            [cljsjs.react.dom]
-            [clojure.walk :refer [keywordize-keys]]
-            [alibi.logging :refer [log log-cljs]]
-            [sablono.core :as sab]))
+  (:require
+    [clojure.walk :refer [keywordize-keys]]
+    [alibi.logging :refer [log log-cljs]]))
 
 (def ZoneId (. js/JSJoda -ZoneId))
 (def LocalDate (. js/JSJoda -LocalDate))
@@ -660,6 +658,7 @@
        (fn []
          (this-as
            this
+           (comment
            (let [props (js->clj (.-props this) :keywordize-keys true)
                  {:keys [top width left comment]} props]
              (sab/html
@@ -672,7 +671,7 @@
                           :top top}}
                  [:div.tooltip-arrow]
                  [:div.tooltip-inner
-                  comment]]]))))})))
+                  comment]]])))))})))
 
 (defn render-tooltip [project-data state]
   (let [mouse-over-entry (:mouse-over-entry state)
@@ -715,13 +714,13 @@
                 on-click-entry
                 {:selected-entry selected-entry})
 
-          html (sab/html
+          html (comment (sab/html
                  [:div
                   [:div.row
                    [:div.col-md-12
                     (render-change-date-btns state)]]
                   [:div#activity-svg-container
-                   svg]])
+                   svg]]))
 
           tooltip (render-tooltip union-records state)]
       [html tooltip])))

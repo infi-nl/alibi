@@ -1,11 +1,9 @@
 (ns alibi.post-entry-form
-  (:require [cljsjs.react]
-            [cljsjs.react.dom]
-            [clojure.walk :refer [keywordize-keys]]
-            [clojure.string :as string]
-            [sablono.core :refer-macros [html]]
-            [alibi.logging :refer [log log-cljs]]
-            [time.core :refer [expand-time]]))
+  (:require
+    [clojure.walk :refer [keywordize-keys]]
+    [clojure.string :as string]
+    [alibi.logging :refer [log log-cljs]]
+    [time.core :refer [expand-time]]))
 
 (declare render-state render-to-dom on-date-change validate-form)
 

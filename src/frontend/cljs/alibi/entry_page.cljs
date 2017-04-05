@@ -1,7 +1,5 @@
 (ns alibi.entry-page
   (:require
-    [cljsjs.react]
-    [cljsjs.react.dom]
     [alibi.logging :refer [log log-cljs]]
     [alibi.post-new-entry-bar :as post-new-entry-bar]
     [alibi.post-entry-form :as post-entry-form]
@@ -10,7 +8,9 @@
     [alibi.day-entry-table :as day-entry-table]
     [clojure.string :refer [split]]
     [time.core :refer [expand-time]]
-    [cljs.reader]))
+    [cljs.reader]
+    [om.core :as om]
+    [om.dom :as dom]))
 
 (enable-console-print!)
 (defn parse-float [v] (js/parseFloat v))
@@ -156,6 +156,7 @@
 
 (defn render-post-new-entry-bar!
   [for-state]
+  (comment
   (.render
     js/ReactDOM
     (.createElement
@@ -174,7 +175,27 @@
         (fn [selected-task]
           (dispatch! state {:action :select-task
                             :task selected-task}))}})
-    (.getElementById js/document "post-new-entry-bar-container")))
+    (.getElementById js/document "post-new-entry-bar-container"))))
+
+(om/root
+  (fn [for-state owner]
+    (reify
+      om/IRender
+      (render [_]
+        (om/build post-new-entry-bar/entry-bar-form'
+                  {:options (get-in for-state [:post-new-entry-bar :options])
+                   :options-by-id (get-in for-state [:post-new-entry-bar :options-by-id])
+                   :selected-item (:selected-item for-state)
+
+                   :on-cancel
+                   (fn [] (dispatch! state {:action :cancel-entry}))
+
+                   :on-select-task
+                   (fn [selected-task]
+                     (dispatch! state {:action :select-task
+                                       :task selected-task}))}))))
+  state
+  {:target (js/document.getElementById "post-new-entry-bar-container")})
 
 (defn on-change-date [new-date]
   (let [new-date' (if (string? new-date) new-date (.toString new-date))]
@@ -222,10 +243,10 @@
                                          :for-entry entry}))
 
                      }))]
-    (.render
+    (comment (.render
       js/ReactDOM
       element
-      (.getElementById js/document "entry-form-react-container"))))
+      (.getElementById js/document "entry-form-react-container")))))
 
 (defn get-entry [state entry-id]
   {:pre [(integer? entry-id)]}
@@ -269,10 +290,10 @@
            :selected-entry (when selected-entry (:entry-id selected-entry))
 
            })]
-        (.render js/ReactDOM html
+        (comment (.render js/ReactDOM html
                  (.getElementById js/document "activity-graphic"))
         (.render js/ReactDOM tooltip
-                 (.getElementById js/document "activity-graphic-tooltip-container"))))
+                 (.getElementById js/document "activity-graphic-tooltip-container")))))
 
 (defn render-day-entry-table!
   [for-state]
@@ -280,13 +301,13 @@
     (day-entry-table/render "day-entry-table" new-date)))
 
 
-(add-watch
-  state :renderer
-  (fn [_ _ _ new-state]
-    ;(log "rendering %o" new-state)
-    (render-post-new-entry-bar! new-state)
-    (render-post-entry-form! new-state)
-    (render-activity-graphic! new-state)
-    (render-day-entry-table! new-state)))
+;(add-watch
+  ;state :renderer
+  ;(fn [_ _ _ new-state]
+    ;;(log "rendering %o" new-state)
+    ;(render-post-new-entry-bar! new-state)
+    ;(render-post-entry-form! new-state)
+    ;(render-activity-graphic! new-state)
+    ;(render-day-entry-table! new-state)))
 
 (reset! state @state)
