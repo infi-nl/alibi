@@ -129,54 +129,50 @@
         (.preventDefault event)
         (on-error entry)))))
 
-(def datepicker
+(defn datepicker [data owner]
   (let [get-elements
-        (fn [this]
-          (let [el (aget this "element")
+        (fn []
+          (let [el (om/get-node owner "element")
                 $el (js/$ el)]
             {:$input-element (.find $el ".datepicker-input")
              :$show-btn (.find $el ".datepicker-show-btn")}))]
-    (. js/React createClass #js
-       {:componentDidMount
-        (fn []
-          (this-as
-            this
-            (let [{:keys [$input-element $show-btn]} (get-elements this)]
-              (. $input-element datepicker #js {:todayBtn "linked",
-                                                :todayHighlight true,
-                                                :language "nl",
-                                                :format "yyyy-mm-dd",
-                                                :autoclose true })
-              (.. $input-element datepicker
-                  (on "changeDate"
-                      #((or (-> (.. this -props)
-                                js->clj keywordize-keys
-                                :onChangeDate)
-                            identity) %)))
-              (. $show-btn on "click" #(.datepicker $input-element "show")))))
-        :componentWillUnmount
-        (fn []
-          (this-as
-            this
-            (let [{:keys [$input-element $show-btn]} (get-elements this)]
-              (. $input-element datepicker "destroy")
-              (. $show-btn off))))
-        :render
-        (fn []
-          (this-as
-            this
-            (let [props (.-props this)]
-              (clojure.core/comment
-              (html
-                [:div.input-group.input-group-datepicker
-                 {:ref #(aset this "element" %)}
-                 [:input.form-control.datepicker-input
-                  {:type "text"
-                   :value (aget props "selected-date")
-                   :name (aget props "input-name")
-                   :read-only true}]
-                 [:span.input-group-addon.datepicker-show-btn
-                  [:i.glyphicon.glyphicon-calendar]]])))))})))
+    (reify
+      om/IDidMount
+      (did-mount [_]
+        (println "did-mount")
+        (let [{:keys [$input-element $show-btn]} (get-elements)]
+          (. $input-element datepicker #js {:todayBtn "linked",
+                                            :todayHighlight true,
+                                            :language "nl",
+                                            :format "yyyy-mm-dd",
+                                            :autoclose true })
+          (.. $input-element datepicker
+              (on "changeDate"
+                  #((or (:onChangeDate data)
+                        identity) %)))
+          (. $show-btn on "click" #(.datepicker $input-element "show"))))
+
+      om/IWillUnmount
+      (will-unmount [_]
+        (let [{:keys [$input-element $show-btn]} (get-elements)]
+          (. $input-element datepicker "destroy")
+          (. $show-btn off)))
+
+      om/IRender
+      (render [_]
+        (dom/div
+          #js {:className "input-group input-group-datepicker"
+               :ref "element"}
+          (dom/input
+            #js {:className "form-control datepicker-input"
+                 :type "text"
+                 :value (:selected-date data)
+                 :name (:input-name data)
+                 :readOnly true})
+          (dom/span
+            #js {:className "input-group-addon datepicker-show-btn"}
+            (dom/i
+              #js {:className "glyphicon glyphicon-calendar"})))))))
 
 (defn render-state
   [for-state]
@@ -257,22 +253,21 @@
                           (dom/div
                             #js {:className "form-inline form-inline-no-horz-margin"}
                             (dom/div
-                              #js {:className "form-group"})
-                            ;^:inline ;there should be a better way to embed another component
-                            ;(c datepicker {:input-name "for-date"
-                            ;:selected-date selected-date
-                            ;:onChangeDate
-                            ;(fn [event]
-                            ;(let [instant
-                            ;(..
-                            ;js/JSJoda -Instant
-                            ;(ofEpochMilli
-                            ;(.. event -date getTime)))
+                              #js {:className "form-group"}
+                              (om/build datepicker {:input-name "for-date"
+                                                    :selected-date selected-date
+                                                    :onChangeDate
+                                                    (fn [event]
+                                                      (let [instant
+                                                            (..
+                                                              js/JSJoda -Instant
+                                                              (ofEpochMilli
+                                                                (.. event -date getTime)))
 
-                            ;new-date
-                            ;(.. js/JSJoda -LocalDate
-                            ;(ofInstant instant) toString)]
-                            ;(on-change-date new-date)))})]
+                                                            new-date
+                                                            (.. js/JSJoda -LocalDate
+                                                                (ofInstant instant) toString)]
+                                                        (on-change-date new-date)))}))
                             " "
                             (dom/div
                               #js {:className (str "form-group"
