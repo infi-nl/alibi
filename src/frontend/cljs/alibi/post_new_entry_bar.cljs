@@ -42,7 +42,6 @@
          "</span></div>")))
 
 (defn entry-bar-form' [for-state owner]
-  (log "data %o" for-state)
   (letfn [(get-selectize [] (.. (js/$ (om/get-node owner "the-form"))
                               (find "select")
                               (get 0)

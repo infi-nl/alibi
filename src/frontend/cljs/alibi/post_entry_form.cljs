@@ -139,7 +139,6 @@
     (reify
       om/IDidMount
       (did-mount [_]
-        (println "did-mount")
         (let [{:keys [$input-element $show-btn]} (get-elements)]
           (. $input-element datepicker #js {:todayBtn "linked",
                                             :todayHighlight true,
@@ -234,7 +233,7 @@
                   (dom/ul
                     #js {:className "entry-form-errors-list-container"}
                     (map #(-> (dom/li #js {:key (get % 0)}
-                                      (dom/strong (get % 0))
+                                      (dom/strong nil (get % 0))
                                       (str " "(get % 1))))
                          summary-errors)))
                 (dom/div
