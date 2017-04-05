@@ -203,6 +203,49 @@
                       ;:date new-date'})
     (fetch-ag-data! new-date)))
 
+(om/root
+  (fn [for-state owner]
+    (reify
+      om/IRender
+      (render [_]
+        (om/build post-entry-form/react-component'
+                  {:input-entry (input-entry for-state)
+
+                   :on-change-comment
+                   (fn [comment]
+                     (dispatch! state {:action :change-comment
+                                       :comment comment}))
+
+                   :on-change-start-time
+                   (fn [start-time]
+                     (dispatch! state {:action :change-start-time
+                                       :start-time start-time}))
+
+                   :on-change-end-time
+                   (fn [end-time]
+                     (dispatch! state {:action :change-end-time
+                                       :end-time end-time}))
+
+                   :on-change-billable?
+                   (fn [billable?]
+                     (dispatch! state {:action :change-billable?
+                                       :billable? billable?}))
+
+                   :on-change-date on-change-date
+
+                   :on-cancel-entry
+                   (fn []
+                     (dispatch! state {:action :cancel-entry}))
+
+                   :on-form-submit-error
+                   (fn [entry]
+                     (dispatch! state {:action :entry-form-show-errors
+                                       :for-entry entry}))
+
+                   }))))
+  state
+  {:target (js/document.getElementById "entry-form-react-container")})
+
 (defn render-post-entry-form!
   [for-state]
   (let [element (.createElement
