@@ -1,7 +1,10 @@
 (ns alibi.activity-graphic
   (:require
     [clojure.walk :refer [keywordize-keys]]
-    [alibi.logging :refer [log log-cljs]]))
+    [alibi.logging :refer [log log-cljs]]
+    [om.core :as om]
+    [om.dom :as dom]
+    [clojure.string :as string]))
 
 (def ZoneId (. js/JSJoda -ZoneId))
 (def LocalDate (. js/JSJoda -LocalDate))
@@ -62,19 +65,24 @@
       for-date
       (recur (. for-date plusDays -1)))))
 
+(defn c [el attrs & children]
+  (log "attrs %o" attrs)
+  (apply js/React.createElement el attrs children))
+
 (defn svg-glow [id color & {:keys [radius std-dev] :or {:radius 1 :std-dev 1}}]
     ;from http://stackoverflow.com/a/36564885/345910
-    [:filter
-     {:id id :x "-5000%" :y "-5000%" :width "10000%" :height "10000%"}
-     [:feFlood {:result "flood" :flood-color color :flood-opacity "1"}]
-     [:feComposite {:in "flood" :result "mask" :in2 "SourceGraphic"
-                    :operator "in"}]
-     [:feMorphology {:in "mask" :result "dilated" :operator "dilate"
-                     :radius radius}]
-     [:feGaussianBlur {:in "dilated" :result "blurred" :stdDeviation std-dev}]
-     [:feMerge
-      [:feMergeNode {:in "blurred"}]
-      [:feMergeNode {:in "SourceGraphic"}]]])
+    (c "filter"
+      #js {:id id :x "-5000%" :y "-5000%" :width "10000%" :height "10000%"}
+      (c "feFlood" #js {:result "flood" :flood-color color :flood-opacity "1"})
+      (c "feComposite" #js {:in "flood" :result "mask" :in2 "SourceGraphic"
+                            :operator "in"})
+      (c "feMorphology" #js {:in "mask" :result "dilated" :operator "dilate"
+                              :radius radius})
+      (c "feGaussianBlur" #js {:in "dilated" :result "blurred"
+                               :stdDeviation std-dev})
+      (c "feMerge" nil
+        (c "feMergeNode" #js {:in "blurred"})
+        (c "feMergeNode"  #js {:in "SourceGraphic"}))))
 
 (defn draw-result-empty []
   {:y-offset 0 :els []})
@@ -209,18 +217,20 @@
         (let [date (.ofInstant LocalDate left-instant)]
           (->> draw-result
                (draw-result-append-el
-                 [:text.grid-day-label
-                  {:class (when (.equals date selected-date)
-                            "grid-day-label-is-selected")
-                   :x (+ left-x
-                         (drawing-const
-                           [:grid-day-label :x-offset-px]))
-                   :y (+ y-offset
-                         (drawing-const
-                           [:grid-day-label :height-px]))
-                   :on-click #(on-change-date date)}
-                  (-> (. LocalDate ofInstant left-instant)
-                      date->grid-label)])))))
+                 (dom/text
+                   #js
+                   {:className (str "grid-day-label"
+                                    (when (.equals date selected-date)
+                                      " grid-day-label-is-selected"))
+                    :x (+ left-x
+                          (drawing-const
+                            [:grid-day-label :x-offset-px]))
+                    :y (+ y-offset
+                          (drawing-const
+                            [:grid-day-label :height-px]))
+                    :on-click #(on-change-date date)}
+                   (-> (. LocalDate ofInstant left-instant)
+                       date->grid-label)))))))
     (draw-result-add-to-y
       (+ (drawing-const [:grid-day-label :height-px])
          (drawing-const [:grid-time-label :height-px])))
@@ -228,28 +238,34 @@
       (fn [{:keys [left-x right-x]} {:keys [y-offset] :as draw-result}]
         (->> draw-result
              (draw-result-append-el
-               [:text.grid-time-label
-                {:x (+ left-x
-                       (drawing-const [:grid-time-label :x-offset-px]))
-                 :y y-offset}
-                (.toString min-time)])
+               (dom/text
+                 #js
+                 {:className "grid-time-label"
+                  :x (+ left-x
+                        (drawing-const [:grid-time-label :x-offset-px]))
+                  :y y-offset}
+                 (.toString min-time)))
              (draw-result-append-el
-               [:text.grid-time-label
-                {:x (- right-x
+               (dom/text
+                #js
+                {:className "grid-time-label"
+                 :x (- right-x
                        (drawing-const [:grid-time-label :x-offset-px]))
                  :y y-offset
-                 :text-anchor "end"}
-                (.toString max-time)]))))))
+                 :textAnchor "end"}
+                (.toString max-time))))))))
 
 (defn draw-no-data-msg [draw-result]
   (->> draw-result
        (draw-result-append-el
-         [:text.no-data-in-period
-          {:x (drawing-const [:no-data :x-offset-px])
-           :y (+ (:y-offset draw-result)
-                 (drawing-const [:no-data :y-offset-px]))
-           :text-anchor "middle"}
-          "No data for this period"])
+         (dom/text
+           #js
+           {:className "no-data-in-period"
+            :x (drawing-const [:no-data :x-offset-px])
+            :y (+ (:y-offset draw-result)
+                  (drawing-const [:no-data :y-offset-px]))
+            :textAnchor "middle"}
+           "No data for this period"))
        (draw-result-add-to-y
          (+ (drawing-const [:no-data :y-offset-px])
             (drawing-const [:no-data :bottom-padding-px])))))
@@ -292,22 +308,28 @@
                 (= (get-in bar [:bar :entry-id]) selected-entry)
                 (draw-result-append-el
                   (let [height (drawing-const [:hour-entry :height-px])]
-                    [:rect.hour-entry-active
-                     {:x (:x1 bar)
-                      :width (- (:x2 bar) (:x1 bar))
-                      :y (- (:y-offset draw-result) (/ height 2))
-                      :height height
-                      :style {:filter "url(#hour-entry-active-glow)"}}]))
+                    (dom/rect
+                      #js
+                      {:className "hour-entry-active"
+                       :x (:x1 bar)
+                       :width (- (:x2 bar) (:x1 bar))
+                       :y (- (:y-offset draw-result) (/ height 2))
+                       :height height
+                       :style {:filter "url(#hour-entry-active-glow)"}})))
 
                 :always
                 (draw-result-append-el
-                  [:line.time-line.hour-line
-                   {:x1 (:x1 bar)
+                  (dom/line
+                   #js
+                   {:className (str "time-line hour-line "
+                                    (when (-> bar :bar :billable?)
+                                      "hour-line-is-billable"))
+                    :x1 (:x1 bar)
                     :x2 (:x2 bar)
                     :y1 (:y-offset draw-result)
                     :y2 (:y-offset draw-result)
 
-                    :on-mouse-enter
+                    :onMouseEnter
                     (fn [ev]
                       (let [rect (get-abs-bounding-client-rect
                                    (.-target ev))]
@@ -315,14 +337,11 @@
                           {:entry-id (get-in bar [:bar :entry-id])
                            :pos rect})))
 
-                    :on-mouse-leave #(on-mouse-leave-bar)
+                    :onMouseLeave #(on-mouse-leave-bar)
 
-                    :on-click
+                    :onClick
                     (fn [ev]
-                      (on-click-bar (get-in bar [:bar :entry-id])))
-
-                    :class (when (-> bar :bar :billable?)
-                             "hour-line-is-billable")}])))
+                      (on-click-bar (get-in bar [:bar :entry-id])))}))))
             draw-result
             drawable-bars))
 
@@ -332,21 +351,23 @@
             draw-result
             (->> draw-result
                  (draw-result-append-el
-                   [:text.project-label.project-label-summary
-                    {:x (+ (:x2 (last drawable-bars))
-                           (drawing-const [:project-label-offset-px]))
-                     :y (+ (:y-offset draw-result)
-                           (drawing-const
-                             [:project-label-vert-offset-px]))}
-                    right-label]))))]
+                   (dom/text
+                     #js {:className "project-label project-label-summary"
+                          :x (+ (:x2 (last drawable-bars))
+                                (drawing-const [:project-label-offset-px]))
+                          :y (+ (:y-offset draw-result)
+                                (drawing-const
+                                  [:project-label-vert-offset-px]))}
+                    right-label)))))]
     (->> draw-result
          (draw-result-append-el
-           [:text.project-label.project-label-taskname
-            {:x x-start
-             :y (+ (:y-offset draw-result)
-                   (drawing-const [:project-label-vert-offset-px]))
-             :text-anchor "end"}
-            text])
+           (dom/text
+             #js {:className "project-label project-label-taskname"
+                  :x x-start
+                  :y (+ (:y-offset draw-result)
+                        (drawing-const [:project-label-vert-offset-px]))
+                  :textAnchor "end"}
+            text))
          (draw-bars)
          (draw-right-label)
          (draw-result-add-to-y (drawing-const [:row-spacing-px])))))
@@ -364,10 +385,11 @@
   (let [x (drawing-const [:project-heading-x-px])]
     (->> draw-result
          (draw-result-append-el
-           [:text.project-heading
-            {:x x
-             :y (:y-offset draw-result)}
-            label])
+           (dom/text
+             #js {:className "project-heading"
+                  :x x
+                  :y (:y-offset draw-result)}
+            label))
          (draw-result-add-to-y
            (drawing-const [:heading-to-rows-px])))))
 
@@ -419,14 +441,16 @@
         (.equals (.ofInstant LocalDate left-instant)
                  selected-date)
         (draw-result-append-el
-          [:rect.selected-date-highlight
-           {:x left-x :width (- right-x left-x)
-            :y 0 :height height}])
+          (dom/rect
+            #js {:className "selected-date-highlight"
+                 :x left-x :width (- right-x left-x)
+                 :y 0 :height height}))
         true
         (draw-result-append-el
-          [:line.grid-day-separator
-           {:x1 left-x :x2 left-x
-            :y1 0 :y2 height}])))
+          (dom/line
+            #js {:className "grid-day-separator"
+                 :x1 left-x :x2 left-x
+                 :y1 0 :y2 height}))))
     draw-result))
 
 
@@ -441,9 +465,10 @@
       draw-result
       (let [x (- (.floor js/Math (instant-to-x now)) 0.5)]
         (draw-result-append-el
-          [:line.now-indicator
-           {:x1 x :x2 x
-            :y1 0 :y2 height}]
+          (dom/line
+            #js {:className "now-indicator"
+                 :x1 x :x2 x
+                 :y1 0 :y2 height})
           draw-result)))))
 
 (defn bars-filter-date
@@ -467,13 +492,13 @@
       (fn [draw-result bar]
         (let [x1 (instant-to-x (:from bar))
               x2 (instant-to-x (:till bar))
-              classes (conj bar-classes "time-line")
-              el [:line
-                  {:class classes
-                   :x1 x1
-                   :x2 x2
-                   :y1 y-offset
-                   :y2 y-offset}]]
+              classes (string/join " "(conj bar-classes "time-line"))
+              el (dom/line
+                   #js {:className classes
+                        :x1 x1
+                        :x2 x2
+                        :y1 y-offset
+                        :y2 y-offset})]
           (draw-result-append-el el draw-result)))
       draw-result
       bars)))
@@ -511,19 +536,23 @@
                    {:bar-classes ["day-summary" "non-billable"
                                   day-complete-class]})
                  (draw-result-append-el
-                   [:text.day-summary-label
-                    {:x (- right-x
-                           (drawing-const
-                             [:day-summary :label :x-offset-px]))
-                     :y text-offset
-                     :text-anchor "end"}
-                    [:tspan {:class day-complete-class}
-                     (format-duration day-duration)]
-                    (let [day-billability
-                          (/ (.toMinutes (bars-sum-duration billable))
-                             (.toMinutes day-duration))]
-                      (str " (" (.floor js/Math (* 100 day-billability))
-                           "%)"))])
+                   (dom/text
+                     #js {:className "day-summary-label"
+                          :x (- right-x
+                                (drawing-const
+                                  [:day-summary :label :x-offset-px]))
+                          :y text-offset
+                          :textAnchor "end"}
+                     (dom/tspan
+                       #js {:className day-complete-class}
+                       (format-duration day-duration))
+                     (dom/tspan
+                       nil
+                       (let [day-billability
+                             (/ (.toMinutes (bars-sum-duration billable))
+                                (.toMinutes day-duration))]
+                         (str " (" (.floor js/Math (* 100 day-billability))
+                              "%)")))))
                  (draw-result-set-y-offset text-offset)))))
       draw-result)))
 
@@ -603,38 +632,48 @@
         grid (->> (draw-result-empty)
                   (render-grid height)
                   (render-now-indicator height))]
-    [:svg
-     {:version "1.1"
-      :baseProfile "full"
-      :width "100%"
-      :height height}
-     [:defs
-      (svg-glow "hour-entry-active-glow"
-                (drawing-const [:hour-entry :active :color])
-                :radius (drawing-const [:hour-entry :active :radius] 1)
-                :std-dev (drawing-const [:hour-entry :active :std-dev] 1))]
-     (map-indexed
-       ; TODO assign proper keys
-       (fn [idx [el attrs-or-child & more]]
-         (let [attrs (when (map? attrs-or-child) attrs-or-child)
-               children (concat (when-not attrs [attrs]) more)]
-           [el (assoc attrs :key idx) children]))
-       (concat (:els grid) (:els draw-result)))]))
+    (apply dom/svg
+      #js {:version "1.1"
+           :baseProfile "full"
+           :width "100%"
+           :height height}
+      (dom/defs
+        nil
+        (svg-glow "hour-entry-active-glow"
+                  (drawing-const [:hour-entry :active :color])
+                  :radius (drawing-const [:hour-entry :active :radius] 1)
+                  :std-dev (drawing-const [:hour-entry :active :std-dev] 1)))
+      ;TODO assign keys
+      (concat (:els grid) (:els draw-result)))))
+      ;(map-indexed
+        ;; TODO assign proper keys
+        ;(fn [idx [el attrs-or-child & more]]
+          ;(let [attrs (when (map? attrs-or-child) attrs-or-child)
+                ;children (concat (when-not attrs [attrs]) more)]
+            ;[el (assoc attrs :key idx) children]))
+        ;(do (log "grid" (:els grid))
+            ;(log "draw-result" (:els draw-result))
+            ;(concat (:els grid) (:els draw-result)))))))
 
 (defn render-change-date-btns
   [{:keys [on-change-date] :as state}]
   (let [selected-date (.parse LocalDate
                               (get-in state [:project-data :selected-date]))]
-    [:div.pull-right.btn-group
-     [:button.btn.btn-default.btn-xs.btn-prev-period
-      {:on-click (fn [] (on-change-date (.plusDays selected-date -7)))}
-      [:span.glyphicon.glyphicon-chevron-left]]
-     [:button.btn.btn-default.btn-xs.btn-period-today
-      {:on-click (fn [] (on-change-date (.now LocalDate)))}
-      "Today"]
-     [:button.btn.btn-default.btn-xs.btn-next-period
-      {:on-click (fn [] (on-change-date (.plusDays selected-date 7)))}
-      [:span.glyphicon.glyphicon-chevron-right]]]))
+    (dom/div
+      #js {:className "pull-right btn-group"}
+      (dom/button
+        #js {:className "btn btn-default btn-xs btn-prev-period"
+             :onClick (fn [] (on-change-date (.plusDays selected-date -7)))}
+        (dom/span #js {:className "glyphicon glyphicon-chevron-left"}))
+      (dom/button
+        #js {:className "btn btn-default btn-xs btn-period-today"
+             :onClick (fn [] (on-change-date (.now LocalDate)))}
+        "Today")
+      (dom/button
+        #js {:className "btn btn-default btn-xs btn-next-period"
+             :onClick (fn [] (on-change-date (.plusDays selected-date 7)))}
+        (dom/span
+          #js {:className "glyphicon glyphicon-chevron-right"})))))
 
 (def tooltip-component
   (.createClass
@@ -714,13 +753,24 @@
                 on-click-entry
                 {:selected-entry selected-entry})
 
-          html (comment (sab/html
-                 [:div
-                  [:div.row
-                   [:div.col-md-12
-                    (render-change-date-btns state)]]
-                  [:div#activity-svg-container
-                   svg]]))
+          html (dom/div
+                 nil
+                 (dom/div
+                   #js {:className "row"}
+                   (dom/div
+                     #js {:className "col-md-12"}
+                     (render-change-date-btns state))
+                   (dom/div
+                     #js {:id "activity-svg-container"}
+                     svg)))
 
           tooltip (render-tooltip union-records state)]
       [html tooltip])))
+
+(defn render-html [state owner]
+  (reify
+    om/IRender
+    (render [_]
+      (let [[html _] (render state)]
+        html))))
+

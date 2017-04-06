@@ -154,29 +154,6 @@
     (log "fetching initial ag data")
     (fetch-ag-data! (get current-state :selected-date))))
 
-(defn render-post-new-entry-bar!
-  [for-state]
-  (comment
-  (.render
-    js/ReactDOM
-    (.createElement
-      js/React
-      post-new-entry-bar/entry-bar-form
-      #js
-      {:clj-props
-       {:options (get-in for-state [:post-new-entry-bar :options])
-        :options-by-id (get-in for-state [:post-new-entry-bar :options-by-id])
-        :selected-item (:selected-item for-state)
-
-        :on-cancel
-        (fn [] (dispatch! state {:action :cancel-entry}))
-
-        :on-select-task
-        (fn [selected-task]
-          (dispatch! state {:action :select-task
-                            :task selected-task}))}})
-    (.getElementById js/document "post-new-entry-bar-container"))))
-
 (om/root
   (fn [for-state owner]
     (reify
@@ -285,11 +262,7 @@
                        (dispatch! state {:action :entry-form-show-errors
                                          :for-entry entry}))
 
-                     }))]
-    (comment (.render
-      js/ReactDOM
-      element
-      (.getElementById js/document "entry-form-react-container")))))
+                     }))]))
 
 (defn get-entry [state entry-id]
   {:pre [(integer? entry-id)]}
@@ -338,19 +311,55 @@
         (.render js/ReactDOM tooltip
                  (.getElementById js/document "activity-graphic-tooltip-container")))))
 
+(om/root
+  (fn [for-state owner]
+    (reify
+      om/IRender
+      (render [_]
+        (let [selected-date (get for-state :selected-date)
+              selected-entry (-> (input-entry for-state)
+                                 (post-entry-form/additional-entry)
+                                 (input-entry->data-entry))]
+          (om/build activity-graphic/render-html
+                    {:project-data
+                     {:data (:activity-graphic-data for-state)
+                      :selected-date selected-date}
+
+                     :on-change-date on-change-date
+
+                     :mouse-over-entry
+                     (:activity-graphic-mouse-over-entry for-state)
+
+                     :on-mouse-over-entry
+                     #(dispatch! state {:action :mouse-over-entry
+                                        :entry %})
+
+                     :on-mouse-leave-entry
+                     #(dispatch! state {:action :mouse-leave-entry})
+
+                     :on-click-entry #(dispatch!
+                                        state
+                                        {:action :edit-entry
+                                         :entry (data-entry->input-entry
+                                                  (get-entry for-state %))})
+
+                     :additional-entries (when selected-entry [selected-entry])
+                     :selected-entry (when selected-entry (:entry-id selected-entry))
+
+                     })))))
+  state
+  {:target (js/document.getElementById "activity-graphic")})
+
+
 (defn render-day-entry-table!
   [for-state]
   (let [new-date (get for-state :selected-date)]
     (day-entry-table/render "day-entry-table" new-date)))
 
 
-;(add-watch
-  ;state :renderer
-  ;(fn [_ _ _ new-state]
-    ;;(log "rendering %o" new-state)
-    ;(render-post-new-entry-bar! new-state)
-    ;(render-post-entry-form! new-state)
-    ;(render-activity-graphic! new-state)
-    ;(render-day-entry-table! new-state)))
+(add-watch
+  state :renderer
+  (fn [_ _ _ new-state]
+    (render-day-entry-table! new-state)))
 
 (reset! state @state)
