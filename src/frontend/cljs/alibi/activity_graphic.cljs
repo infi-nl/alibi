@@ -228,7 +228,7 @@
                     :y (+ y-offset
                           (drawing-const
                             [:grid-day-label :height-px]))
-                    :on-click #(on-change-date date)}
+                    :onClick #(on-change-date date)}
                    (-> (. LocalDate ofInstant left-instant)
                        date->grid-label)))))))
     (draw-result-add-to-y
