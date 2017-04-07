@@ -560,8 +560,7 @@
    selected-date-str
    projects
    selected-entry
-   on-change-date
-   on-click-entry]
+   on-change-date]
   (let [selected-date (.parse LocalDate selected-date-str)
         min-date (find-first-monday selected-date)
         [min-time max-time] (calc-min-max-time projects)
@@ -578,7 +577,7 @@
                      (let [opts' (merge
                                    {:on-mouse-over-bar #(dispatch! {:action :mouse-over-entry :entry %})
                                     :on-mouse-leave-bar #(dispatch! {:action :mouse-leave-entry})
-                                    :on-click-bar on-click-entry}
+                                    :on-click-bar #(dispatch! {:action :edit-entry :entry-id %})}
                                    opts)]
                        (render-row selected-entry instant-to-x text bars opts'
                                    draw-result)))
@@ -598,7 +597,6 @@
    selected-date-str
    projects
    on-change-date
-   on-click-entry
    {:keys [selected-entry] :as opts}]
   (let [{:keys [render-grid-labels
                 render-projects
@@ -609,8 +607,7 @@
                                          selected-date-str
                                          projects
                                          selected-entry
-                                         on-change-date
-                                         on-click-entry)
+                                         on-change-date)
         has-project-data? (seq projects)
 
         draw-result (-> (draw-result-empty)
@@ -706,8 +703,6 @@
   [{:keys [dispatch!
            project-data
            on-change-date
-           on-mouse-leave-entry
-           on-click-entry
            additional-entries
            selected-entry] :as state}]
   ;(log "project-data %o" project-data)
@@ -719,7 +714,6 @@
                 (:selected-date project-data)
                 (init-data union-records)
                 on-change-date
-                on-click-entry
                 {:selected-entry selected-entry})
 
           html (dom/div

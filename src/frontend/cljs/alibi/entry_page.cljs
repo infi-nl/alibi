@@ -249,8 +249,6 @@
      :mouse-over-entry
      (:activity-graphic-mouse-over-entry for-state)
 
-     :on-click-entry #(dispatch! state {:action :edit-entry :entry-id %})
-
      :additional-entries (when selected-entry [selected-entry])
      :selected-entry (when selected-entry (:entry-id selected-entry))}))
 
