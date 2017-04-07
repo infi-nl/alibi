@@ -190,7 +190,7 @@
      :on-change-date on-change-date
 
      :additional-entries (when selected-entry [selected-entry])
-     :selected-entry (when selected-entry (:entry-id selected-entry))}))
+     }))
 
 (om/root
   (fn [for-state owner]

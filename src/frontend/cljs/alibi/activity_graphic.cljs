@@ -749,7 +749,8 @@
                                (post-entry-form/additional-entry)
                                (state/input-entry->data-entry))]
         (render-graphic (-> state
-                            (assoc :selected-entry selected-entry)
+                            (assoc :selected-entry (when selected-entry
+                                                     (:entry-id selected-entry)))
                             (assoc-in [:project-data :data] entries)
                             (assoc-in [:project-data :selected-date]
                                       (:selected-date selected-date))))))))
