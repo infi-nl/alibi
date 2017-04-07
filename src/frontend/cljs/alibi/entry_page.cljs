@@ -149,16 +149,7 @@
                   {:dispatch! (partial dispatch! state)
                    :input-entry (input-entry for-state)
 
-                   :on-change-billable?
-                   (fn [billable?]
-                     (dispatch! state {:action :change-billable?
-                                       :billable? billable?}))
-
                    :on-change-date on-change-date
-
-                   :on-cancel-entry
-                   (fn []
-                     (dispatch! state {:action :cancel-entry}))
 
                    :on-form-submit-error
                    (fn [entry]

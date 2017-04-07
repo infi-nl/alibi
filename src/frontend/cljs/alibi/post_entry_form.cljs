@@ -154,8 +154,6 @@
   (let [{:keys [input-entry
                 dispatch!
                 on-change-date
-                on-change-end-time
-                on-cancel-entry
                 on-valid-entry
                 on-form-submit-error
                 ]} for-state
@@ -367,5 +365,5 @@
                                  :name "cancel"
                                  :onClick #(do
                                              (.preventDefault %)
-                                             (on-cancel-entry))}
+                                             (dispatch! {:action :cancel-entry}))}
                             "Cancel"))))))))))))))
