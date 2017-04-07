@@ -561,7 +561,6 @@
    projects
    selected-entry
    on-change-date
-   on-mouse-leave-entry
    on-click-entry]
   (let [selected-date (.parse LocalDate selected-date-str)
         min-date (find-first-monday selected-date)
@@ -578,7 +577,7 @@
         render-row (fn [text bars opts draw-result]
                      (let [opts' (merge
                                    {:on-mouse-over-bar #(dispatch! {:action :mouse-over-entry :entry %})
-                                    :on-mouse-leave-bar on-mouse-leave-entry
+                                    :on-mouse-leave-bar #(dispatch! {:action :mouse-leave-entry})
                                     :on-click-bar on-click-entry}
                                    opts)]
                        (render-row selected-entry instant-to-x text bars opts'
@@ -599,7 +598,6 @@
    selected-date-str
    projects
    on-change-date
-   on-mouse-leave-entry
    on-click-entry
    {:keys [selected-entry] :as opts}]
   (let [{:keys [render-grid-labels
@@ -612,7 +610,6 @@
                                          projects
                                          selected-entry
                                          on-change-date
-                                         on-mouse-leave-entry
                                          on-click-entry)
         has-project-data? (seq projects)
 
@@ -722,7 +719,6 @@
                 (:selected-date project-data)
                 (init-data union-records)
                 on-change-date
-                on-mouse-leave-entry
                 on-click-entry
                 {:selected-entry selected-entry})
 

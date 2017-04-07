@@ -22,7 +22,7 @@
    :submit-time-state nil})
 
 (defn reducer
-  [prev-state {:keys [action] :as payload}]
+  [prev-state {:keys [action] :as payload} next-state]
   (case action
     :change-comment
     (assoc prev-state :comment (:comment payload))
@@ -45,7 +45,7 @@
 
     :edit-entry
     (merge initial-state
-           (select-keys (:entry payload)
+           (select-keys (:selected-entry next-state)
                         [:comment :startTime :endTime :isBillable :entry-id]))
 
     prev-state))

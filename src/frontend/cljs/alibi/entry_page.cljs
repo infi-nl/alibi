@@ -102,39 +102,49 @@
      :endTime (epoch->time-str (:till entry))
      :entry-id (:entry-id entry)}))
 
+(defn get-entry [state entry-id]
+  {:pre [(integer? entry-id)]}
+  (let [ag-data (:activity-graphic-data state)]
+    (->> ag-data
+         (filter #(= (:entry-id %) entry-id))
+         first)))
+
 (defn reducer
   [prev-state {:keys [action] :as payload}]
   ;(log "reducer %o" payload)
-  (->
-    (case action
-      :select-task
-      (assoc prev-state :selected-item (:task payload))
+  (let [next-state
+        (case action
+          :select-task
+          (assoc prev-state :selected-item (:task payload))
 
-      ;:change-date
-      ;(assoc-in prev-state [:post-entry-form :selectedDate] (:date payload))
+          ;:change-date
+          ;(assoc-in prev-state [:post-entry-form :selectedDate] (:date payload))
 
-      :receive-activity-graphic-data
-      (-> prev-state
-          (assoc :selected-date (:for-date payload))
-          (assoc :activity-graphic-data (:data payload)))
+          :receive-activity-graphic-data
+          (-> prev-state
+              (assoc :selected-date (:for-date payload))
+              (assoc :activity-graphic-data (:data payload)))
 
-      :mouse-over-entry
-      (assoc prev-state :activity-graphic-mouse-over-entry (:entry payload))
+          :mouse-over-entry
+          (assoc prev-state :activity-graphic-mouse-over-entry (:entry payload))
 
-      :mouse-leave-entry
-      (dissoc prev-state :activity-graphic-mouse-over-entry)
+          :mouse-leave-entry
+          (dissoc prev-state :activity-graphic-mouse-over-entry)
 
-      :edit-entry
-      (let [entry (:entry payload)]
-        (-> prev-state
-            (assoc :selected-item (:selected-item entry)
-                   :selected-date (:selected-date entry))))
+          :edit-entry
+          (let [entry (data-entry->input-entry
+                        (get-entry prev-state (:entry-id payload)))]
 
-      :cancel-entry
-      (dissoc prev-state :selected-item)
+            (-> prev-state
+                (assoc :selected-item (:selected-item entry)
+                       :selected-date (:selected-date entry)
+                       :selected-entry entry)))
 
-      prev-state)
-    (update :post-entry-form post-entry-form/reducer payload)))
+          :cancel-entry
+          (dissoc prev-state :selected-item)
+
+          prev-state)]
+    (update next-state :post-entry-form post-entry-form/reducer payload next-state)))
 
 (defn dispatch!
   [state-atom action]
@@ -223,14 +233,6 @@
   state
   {:target (js/document.getElementById "entry-form-react-container")})
 
-(defn get-entry [state entry-id]
-  {:pre [(integer? entry-id)]}
-  (let [ag-data (:activity-graphic-data state)]
-    (->> ag-data
-         (filter #(= (:entry-id %) entry-id))
-         first)))
-
-
 (defn build-activity-graphic-state [for-state]
   (let [selected-date (get for-state :selected-date)
         selected-entry (-> (input-entry for-state)
@@ -247,14 +249,7 @@
      :mouse-over-entry
      (:activity-graphic-mouse-over-entry for-state)
 
-     :on-mouse-leave-entry
-     #(dispatch! state {:action :mouse-leave-entry})
-
-     :on-click-entry #(dispatch!
-                        state
-                        {:action :edit-entry
-                         :entry (data-entry->input-entry
-                                  (get-entry for-state %))})
+     :on-click-entry #(dispatch! state {:action :edit-entry :entry-id %})
 
      :additional-entries (when selected-entry [selected-entry])
      :selected-entry (when selected-entry (:entry-id selected-entry))}))
