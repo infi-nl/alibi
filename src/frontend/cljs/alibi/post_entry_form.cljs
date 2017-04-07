@@ -185,7 +185,7 @@
             #js {:className (string/join
                               " "
                               [(when summary-errors "has-errors")
-                               (when selected-item "entry-form-visible")])
+                               (when (seq selected-item) "entry-form-visible")])
                  :id "entry-form-container"}
             (dom/input #js {:type "hidden"
                             :name "selected-project-id"

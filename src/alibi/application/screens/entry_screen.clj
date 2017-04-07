@@ -86,10 +86,10 @@
         :initial-state
         {:post-new-entry-bar {:options (map bookable-project-task->option
                                             bookable-projects-and-tasks)}
-         :selected-item (when (and (integer? selected-project-id)
+         :selected-item (if (and (integer? selected-project-id)
                                    (integer? selected-task-id))
                           {:projectId selected-project-id
-                           :taskId selected-task-id})
+                           :taskId selected-task-id} {})
          :selected-date date-formatted
          :post-entry-form {:startTime start-time
                            :endTime end-time

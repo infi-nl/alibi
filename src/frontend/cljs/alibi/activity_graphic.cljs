@@ -5,7 +5,8 @@
     [om.core :as om]
     [om.dom :as dom]
     [clojure.string :as string]
-    [alibi.entry-page-state :as state]))
+    [alibi.entry-page-state :as state]
+    [alibi.post-entry-form :as post-entry-form]))
 
 (def ZoneId (. js/JSJoda -ZoneId))
 (def LocalDate (. js/JSJoda -LocalDate))
@@ -729,13 +730,26 @@
                      svg)))]
       html)))
 
+(defn input-entry [form selected-date selected-item]
+  (-> form
+      (assoc :selected-date selected-date
+             :selected-item selected-item)))
+
 (defn render-html [state owner]
   (reify
     om/IRender
     (render [_]
       (let [entries (om/observe owner (state/entries))
-            selected-date (om/observe owner (state/selected-date))]
+            selected-date (om/observe owner (state/selected-date))
+            post-entry-form (om/observe owner (state/post-entry-form))
+            selected-item (om/observe owner (state/selected-item))
+            selected-entry (-> (input-entry post-entry-form
+                                            (:selected-date selected-date)
+                                            selected-item)
+                               (post-entry-form/additional-entry)
+                               (state/input-entry->data-entry))]
         (render-graphic (-> state
+                            (assoc :selected-entry selected-entry)
                             (assoc-in [:project-data :data] entries)
                             (assoc-in [:project-data :selected-date]
                                       (:selected-date selected-date))))))))

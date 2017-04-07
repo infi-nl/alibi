@@ -11,7 +11,8 @@
     [cljs.reader]
     [om.core :as om]
     [om.dom :as dom]
-    [alibi.entry-page-state :refer [state task-name project-name]]))
+    [alibi.entry-page-state :refer [state task-name project-name
+                                    input-entry->data-entry]]))
 
 (enable-console-print!)
 (defn parse-float [v] (js/parseFloat v))
@@ -30,35 +31,6 @@
       (assoc :selected-date (:selected-date for-state)
              :selected-item (:selected-item for-state))))
 
-(defn input-entry->data-entry
-  [entry]
-  (when entry
-    ;(log "entry %o" entry)
-    (let [start-time (.parse LocalTime (:startTime entry) time-formatter)
-          end-time (.parse LocalTime (:endTime entry) time-formatter)
-          duration-secs (.until start-time end-time (.-SECONDS ChronoUnit))
-          date (.parse LocalDate (:selected-date entry))
-          start (.. date
-                    (atTime start-time)
-                    (atZone (.systemDefault ZoneId))
-                    (toInstant)
-                    (epochSecond))
-          end (.. date
-                  (atTime end-time)
-                  (atZone (.systemDefault ZoneId))
-                  (toInstant)
-                  (epochSecond))]
-      {:task-id (get-in entry [:selected-item :taskId])
-       :project-id (get-in entry [:selected-item :projectId])
-       :billable? (:isBillable entry)
-       :comment (:comment entry)
-       :user-id 0
-       :from start
-       :till end
-       :duration duration-secs
-       :task (task-name (get-in entry [:selected-item :taskId]))
-       :project (project-name (get-in entry [:selected-item :projectId]))
-       :entry-id (:entry-id entry)})))
 
 (defn epoch->time-str [epoch]
   (.format (LocalTime.ofInstant (Instant.ofEpochSecond epoch))
@@ -117,7 +89,7 @@
                        :selected-entry entry)))
 
           :cancel-entry
-          (dissoc prev-state :selected-item)
+          (assoc prev-state :selected-item {})
 
           prev-state)]
     (update next-state :post-entry-form post-entry-form/reducer payload next-state)))
