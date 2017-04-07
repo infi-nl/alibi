@@ -758,7 +758,6 @@
                          (filter #(= entry-id (:entry-id %)))
                          (first)
                          :comment)]
-        ;(log "mo %o %o" mouse-over-entry comment project-data)
         (om/build tooltip-component
                   {:top top
                    :records project-data
