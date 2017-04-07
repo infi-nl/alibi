@@ -184,8 +184,7 @@
   {:target (js/document.getElementById "entry-form-react-container")})
 
 (defn build-activity-graphic-state [for-state]
-  {:dispatch! (partial dispatch! state)
-   :on-change-date on-change-date})
+  {:dispatch! (partial dispatch! state)})
 
 (om/root
   (fn [for-state owner]

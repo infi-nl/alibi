@@ -13,13 +13,11 @@
       (recur (. for-date plusDays -1)))))
 
 (defn change-entry-page-date [new-date]
-  (println "doing it")
   (fn [dispatch!]
     (let [for-date (if (string? new-date) new-date (.toString new-date))]
       (.then
         (ag-ds/get-data (.toString (find-first-monday for-date)))
         (fn [data]
-          (println "done  it")
           (dispatch! {:action :receive-activity-graphic-data
                       :for-date (.toString for-date)
                       :data data}))))))

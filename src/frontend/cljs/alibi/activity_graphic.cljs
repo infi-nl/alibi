@@ -754,7 +754,7 @@
             selected-item (om/observe owner (state/selected-item))
             selected-entry (get-selected-entry post-entry-form
                                                selected-date selected-item)]
-        (render-graphic (-> state
+        (render-graphic (-> (select-keys state [:dispatch!])
                             (assoc :selected-entry (when selected-entry
                                                      (:entry-id selected-entry))
                                    :additional-entries (when selected-entry
