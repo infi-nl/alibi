@@ -311,44 +311,55 @@
         (.render js/ReactDOM tooltip
                  (.getElementById js/document "activity-graphic-tooltip-container")))))
 
+(defn build-activity-graphic-state [for-state]
+  (let [selected-date (get for-state :selected-date)
+        selected-entry (-> (input-entry for-state)
+                           (post-entry-form/additional-entry)
+                           (input-entry->data-entry))]
+    {:project-data
+     {:data (:activity-graphic-data for-state)
+      :selected-date selected-date}
+
+     :on-change-date on-change-date
+
+     :mouse-over-entry
+     (:activity-graphic-mouse-over-entry for-state)
+
+     :on-mouse-over-entry
+     #(dispatch! state {:action :mouse-over-entry
+                        :entry %})
+
+     :on-mouse-leave-entry
+     #(dispatch! state {:action :mouse-leave-entry})
+
+     :on-click-entry #(dispatch!
+                        state
+                        {:action :edit-entry
+                         :entry (data-entry->input-entry
+                                  (get-entry for-state %))})
+
+     :additional-entries (when selected-entry [selected-entry])
+     :selected-entry (when selected-entry (:entry-id selected-entry))}))
+
 (om/root
   (fn [for-state owner]
     (reify
       om/IRender
       (render [_]
-        (let [selected-date (get for-state :selected-date)
-              selected-entry (-> (input-entry for-state)
-                                 (post-entry-form/additional-entry)
-                                 (input-entry->data-entry))]
-          (om/build activity-graphic/render-html
-                    {:project-data
-                     {:data (:activity-graphic-data for-state)
-                      :selected-date selected-date}
+        (om/build activity-graphic/render-html
+                  (build-activity-graphic-state for-state)))))
+    state
+    {:target (js/document.getElementById "activity-graphic")})
 
-                     :on-change-date on-change-date
-
-                     :mouse-over-entry
-                     (:activity-graphic-mouse-over-entry for-state)
-
-                     :on-mouse-over-entry
-                     #(dispatch! state {:action :mouse-over-entry
-                                        :entry %})
-
-                     :on-mouse-leave-entry
-                     #(dispatch! state {:action :mouse-leave-entry})
-
-                     :on-click-entry #(dispatch!
-                                        state
-                                        {:action :edit-entry
-                                         :entry (data-entry->input-entry
-                                                  (get-entry for-state %))})
-
-                     :additional-entries (when selected-entry [selected-entry])
-                     :selected-entry (when selected-entry (:entry-id selected-entry))
-
-                     })))))
+(om/root
+  (fn [for-state owner]
+    (reify
+      om/IRender
+      (render [_]
+        (om/build activity-graphic/render-tooltip'
+                  (build-activity-graphic-state for-state)))))
   state
-  {:target (js/document.getElementById "activity-graphic")})
+  {:target (js/document.getElementById "activity-graphic-tooltip-container")})
 
 
 (defn render-day-entry-table!

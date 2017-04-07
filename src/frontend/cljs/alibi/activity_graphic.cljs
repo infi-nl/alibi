@@ -673,6 +673,76 @@
         (dom/span
           #js {:className "glyphicon glyphicon-chevron-right"})))))
 
+(defn tooltip-component' [state owner]
+  (let [{:keys [top width left comment records]} state]
+    (reify
+      om/IRender
+      (render [_]
+        (dom/div
+          #js
+          {:style #js {:display (if (seq comment) "block" "none")}
+           :ref "element"}
+          (dom/div
+            #js
+            {:className "tooltip top"
+             :role "tooltip"
+             :style #js {:left (+ left (/ width 2))
+                         :top top}}
+            (dom/div #js {:className "tooltip-arrow"})
+            (dom/div #js {:className "tooltip-inner"}
+                     comment))))
+      om/IDidUpdate
+      (did-update [_ _ _]
+        (let [el (aget (om/get-node owner "element") "children" 0)
+              rect (get-abs-bounding-client-rect el)
+              px (fn [val] (str val "px"))]
+          (aset el "style" "left" (px (- (+ left (/ width 2))
+                                         (/ (:width rect) 2))))
+          (aset el "style" "top" (px (- top (:height rect))))
+          (aset el "className" "tooltip top fade in"))))))
+               ;[:div
+                ;{:style {:display (if (seq comment) "block" "none")}
+                 ;:ref #(aset this "element" %)}
+                ;[:div.tooltip.top
+                 ;{:role "tooltip"
+                  ;:style {:left (+ left (/ width 2))
+                          ;:top top}}
+                 ;[:div.tooltip-arrow]
+                 ;[:div.tooltip-inner
+                  ;comment]]])))))})))
+      ;{:componentDidUpdate
+       ;(fn []
+         ;(this-as
+           ;this
+           ;(let [props (js->clj (.-props this) :keywordize-keys true)
+                 ;{:keys [top width left comment]} props
+                 ;el (aget this "element" "children" 0)
+                 ;rect (get-abs-bounding-client-rect el)
+                 ;px (fn [val] (str val "px"))]
+             ;(aset el "style" "left" (px (- (+ left (/ width 2))
+                                            ;(/ (:width rect) 2))))
+             ;(aset el "style" "top" (px (- top (:height rect))))
+             ;(aset el "className" "tooltip top fade in"))))
+
+       ;:render
+       ;(fn []
+         ;(this-as
+           ;this
+           ;(comment
+           ;(let [props (js->clj (.-props this) :keywordize-keys true)
+                 ;{:keys [top width left comment]} props]
+             ;(sab/html
+               ;[:div
+                ;{:style {:display (if (seq comment) "block" "none")}
+                 ;:ref #(aset this "element" %)}
+                ;[:div.tooltip.top
+                 ;{:role "tooltip"
+                  ;:style {:left (+ left (/ width 2))
+                          ;:top top}}
+                 ;[:div.tooltip-arrow]
+                 ;[:div.tooltip-inner
+                  ;comment]]])))))})))
+
 (def tooltip-component
   (.createClass
     js/React
@@ -772,3 +842,24 @@
       (let [[html _] (render state)]
         html))))
 
+(defn render-tooltip'
+  [state owner]
+  (reify
+    om/IRender
+    (render [_]
+      (let [project-data (merge-entries (-> state :project-data :data)
+                                        (-> state :additional-entries))
+            mouse-over-entry (:mouse-over-entry state)
+            entry-id (:entry-id mouse-over-entry)
+            {:keys [left top width]} (:pos mouse-over-entry)
+            comment (->> project-data
+                         (filter #(= entry-id (:entry-id %)))
+                         (first)
+                         :comment)]
+        ;(log "mo %o %o" mouse-over-entry comment project-data)
+        (om/build tooltip-component'
+                  {:top top
+                   :records project-data
+                   :left left
+                   :width width
+                   :comment comment})))))
