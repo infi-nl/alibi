@@ -210,8 +210,7 @@
   {:target (js/document.getElementById "entry-form-react-container")})
 
 (defn build-activity-graphic-state [for-state]
-  (let [selected-date (get for-state :selected-date)
-        selected-entry (-> (input-entry for-state)
+  (let [selected-entry (-> (input-entry for-state)
                            (post-entry-form/additional-entry)
                            (input-entry->data-entry))]
     {:dispatch! (partial dispatch! state)
