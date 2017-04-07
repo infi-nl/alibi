@@ -70,19 +70,17 @@
   (apply js/React.createElement el attrs children))
 
 (defn svg-glow [id color & {:keys [radius std-dev] :or {:radius 1 :std-dev 1}}]
-    ;from http://stackoverflow.com/a/36564885/345910
-    (c "filter"
-      #js {:id id :x "-5000%" :y "-5000%" :width "10000%" :height "10000%"}
-      (c "feFlood" #js {:result "flood" :flood-color color :flood-opacity "1"})
-      (c "feComposite" #js {:in "flood" :result "mask" :in2 "SourceGraphic"
-                            :operator "in"})
-      (c "feMorphology" #js {:in "mask" :result "dilated" :operator "dilate"
-                              :radius radius})
-      (c "feGaussianBlur" #js {:in "dilated" :result "blurred"
-                               :stdDeviation std-dev})
-      (c "feMerge" nil
-        (c "feMergeNode" #js {:in "blurred"})
-        (c "feMergeNode"  #js {:in "SourceGraphic"}))))
+  ;from http://stackoverflow.com/a/36564885/345910
+  (str "<filter id='" id "' x='-5000%' y='-5000%' width='10000%' height='10000%'>
+         <feFlood result='flood' flood-color='" color "' flood-opacity='1'></feFlood>
+         <feComposite in='flood' result='mask' in2='SourceGraphic' operator='in'></feComposite>
+         <feMorphology in='mask' result='dilated' operator='dilate' radius='" radius "'></feMorphology>
+         <feGaussianBlur in='dilated' result='blurred' stdDeviation='" std-dev "'></feGaussianBlur>
+         <feMerge>
+           <feMergeNode in='blurred'></feMergeNode>
+           <feMergeNode in='SourceGraphic'></feMergeNode>
+         </feMerge>
+       </filter>"))
 
 (defn draw-result-empty []
   {:y-offset 0 :els []})
@@ -315,7 +313,7 @@
                        :width (- (:x2 bar) (:x1 bar))
                        :y (- (:y-offset draw-result) (/ height 2))
                        :height height
-                       :style {:filter "url(#hour-entry-active-glow)"}})))
+                       :style #js {:filter "url(#hour-entry-active-glow)"}})))
 
                 :always
                 (draw-result-append-el
@@ -638,11 +636,11 @@
            :width "100%"
            :height height}
       (dom/defs
-        nil
-        (svg-glow "hour-entry-active-glow"
-                  (drawing-const [:hour-entry :active :color])
-                  :radius (drawing-const [:hour-entry :active :radius] 1)
-                  :std-dev (drawing-const [:hour-entry :active :std-dev] 1)))
+        #js {:dangerouslySetInnerHTML
+             #js {:__html (svg-glow "hour-entry-active-glow"
+                                    (drawing-const [:hour-entry :active :color])
+                                    :radius (drawing-const [:hour-entry :active :radius] 1)
+                                    :std-dev (drawing-const [:hour-entry :active :std-dev] 1))}})
       ;TODO assign keys
       (concat (:els grid) (:els draw-result)))))
       ;(map-indexed
