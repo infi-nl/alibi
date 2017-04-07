@@ -134,12 +134,6 @@
   state
   {:target (js/document.getElementById "post-new-entry-bar-container")})
 
-(defn on-change-date [new-date]
-  (let [new-date' (if (string? new-date) new-date (.toString new-date))]
-    ;(dispatch! state {:action :change-date
-                      ;:date new-date'})
-    (fetch-ag-data! new-date)))
-
 (om/root
   (fn [for-state owner]
     (reify
