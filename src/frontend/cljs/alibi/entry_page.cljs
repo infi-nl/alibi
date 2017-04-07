@@ -99,7 +99,7 @@
           :receive-activity-graphic-data
           (-> prev-state
               (assoc :selected-date (:for-date payload))
-              (assoc :activity-graphic-data (:data payload)))
+              (assoc :activity-graphic-data (vec (:data payload))))
 
           :mouse-over-entry
           (assoc prev-state :activity-graphic-mouse-over-entry (:entry payload))
@@ -136,7 +136,7 @@
                         :data data}))))
 
 (let [current-state @state]
-  (when-not (:activity-graphic-data current-state)
+  (when-not (seq (:activity-graphic-data current-state))
     (log "fetching initial ag data")
     (fetch-ag-data! (get current-state :selected-date))))
 
@@ -215,8 +215,7 @@
                            (post-entry-form/additional-entry)
                            (input-entry->data-entry))]
     {:project-data
-     {:data (:activity-graphic-data for-state)
-      :selected-date selected-date}
+     {:selected-date selected-date}
 
      :dispatch! (partial dispatch! state)
 

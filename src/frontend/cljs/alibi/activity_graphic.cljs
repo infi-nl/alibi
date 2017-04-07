@@ -4,7 +4,8 @@
     [alibi.logging :refer [log log-cljs]]
     [om.core :as om]
     [om.dom :as dom]
-    [clojure.string :as string]))
+    [clojure.string :as string]
+    [alibi.entry-page-state :as state]))
 
 (def ZoneId (. js/JSJoda -ZoneId))
 (def LocalDate (. js/JSJoda -LocalDate))
@@ -706,7 +707,7 @@
            additional-entries
            selected-entry] :as state}]
   ;(log "project-data %o" project-data)
-  (when project-data
+  (when (seq project-data)
     (let [union-records (merge-entries (:data project-data)
                                        additional-entries)
           svg (render-svg
@@ -732,7 +733,8 @@
   (reify
     om/IRender
     (render [_]
-      (render-graphic state))))
+      (let [entries (om/observe owner (state/entries))]
+        (render-graphic (assoc-in state [:project-data :data] entries))))))
 
 (defn render-tooltip
   [state owner]
