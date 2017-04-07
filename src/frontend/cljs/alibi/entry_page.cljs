@@ -240,14 +240,12 @@
      {:data (:activity-graphic-data for-state)
       :selected-date selected-date}
 
+     :dispatch! (partial dispatch! state)
+
      :on-change-date on-change-date
 
      :mouse-over-entry
      (:activity-graphic-mouse-over-entry for-state)
-
-     :on-mouse-over-entry
-     #(dispatch! state {:action :mouse-over-entry
-                        :entry %})
 
      :on-mouse-leave-entry
      #(dispatch! state {:action :mouse-leave-entry})

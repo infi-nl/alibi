@@ -556,11 +556,11 @@
 
 
 (defn get-render-fns
-  [selected-date-str
+  [dispatch!
+   selected-date-str
    projects
    selected-entry
    on-change-date
-   on-mouse-over-entry
    on-mouse-leave-entry
    on-click-entry]
   (let [selected-date (.parse LocalDate selected-date-str)
@@ -577,7 +577,7 @@
         iterate-day-grid (partial iterate-day-grid min-time min-date instant-to-x)
         render-row (fn [text bars opts draw-result]
                      (let [opts' (merge
-                                   {:on-mouse-over-bar on-mouse-over-entry
+                                   {:on-mouse-over-bar #(dispatch! {:action :mouse-over-entry :entry %})
                                     :on-mouse-leave-bar on-mouse-leave-entry
                                     :on-click-bar on-click-entry}
                                    opts)]
@@ -595,10 +595,10 @@
                                     iterate-day-grid projects)}))
 
 (defn render-svg
-  [selected-date-str
+  [dispatch!
+   selected-date-str
    projects
    on-change-date
-   on-mouse-over-entry
    on-mouse-leave-entry
    on-click-entry
    {:keys [selected-entry] :as opts}]
@@ -607,11 +607,11 @@
                 render-grid
                 render-now-indicator
                 render-day-summaries]} (get-render-fns
+                                         dispatch!
                                          selected-date-str
                                          projects
                                          selected-entry
                                          on-change-date
-                                         on-mouse-over-entry
                                          on-mouse-leave-entry
                                          on-click-entry)
         has-project-data? (seq projects)
@@ -706,9 +706,9 @@
     (concat (remove #(get ids (:entry-id %)) merge-on) to-merge)))
 
 (defn render-graphic
-  [{:keys [project-data
+  [{:keys [dispatch!
+           project-data
            on-change-date
-           on-mouse-over-entry
            on-mouse-leave-entry
            on-click-entry
            additional-entries
@@ -718,10 +718,10 @@
     (let [union-records (merge-entries (:data project-data)
                                        additional-entries)
           svg (render-svg
+                dispatch!
                 (:selected-date project-data)
                 (init-data union-records)
                 on-change-date
-                on-mouse-over-entry
                 on-mouse-leave-entry
                 on-click-entry
                 {:selected-entry selected-entry})
