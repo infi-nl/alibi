@@ -6,7 +6,8 @@
     [om.dom :as dom]
     [clojure.string :as string]
     [alibi.entry-page-state :as state]
-    [alibi.post-entry-form :as post-entry-form]))
+    [alibi.post-entry-form :as post-entry-form]
+    [alibi.actions :as actions]))
 
 (def ZoneId (. js/JSJoda -ZoneId))
 (def LocalDate (. js/JSJoda -LocalDate))
@@ -650,8 +651,9 @@
             ;(concat (:els grid) (:els draw-result)))))))
 
 (defn render-change-date-btns
-  [{:keys [on-change-date] :as state}]
-  (let [selected-date (.parse LocalDate
+  [{:keys [dispatch!] :as state}]
+  (let [on-change-date #(dispatch! (actions/change-entry-page-date %))
+        selected-date (.parse LocalDate
                               (get-in state [:project-data :selected-date]))]
     (dom/div
       #js {:className "pull-right btn-group"}
@@ -704,7 +706,6 @@
 (defn render-graphic
   [{:keys [dispatch!
            project-data
-           on-change-date
            additional-entries
            selected-entry] :as state}]
   ;(log "project-data %o" project-data)
@@ -715,7 +716,7 @@
                 dispatch!
                 (:selected-date project-data)
                 (init-data union-records)
-                on-change-date
+                #(dispatch! (actions/change-entry-page-date %))
                 {:selected-entry selected-entry})
 
           html (dom/div

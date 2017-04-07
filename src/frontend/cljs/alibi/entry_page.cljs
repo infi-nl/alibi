@@ -96,7 +96,9 @@
 
 (defn dispatch!
   [state-atom action]
-  (swap! state-atom reducer action))
+  (if (fn? action)
+    (action (partial dispatch! state-atom) @state-atom)
+    (swap! state-atom reducer action)))
 
 (defn fetch-ag-data! [for-date]
   (.then
