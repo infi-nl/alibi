@@ -147,16 +147,7 @@
       (render [_]
         (om/build post-entry-form/react-component
                   {:dispatch! (partial dispatch! state)
-                   :input-entry (input-entry for-state)
-
-                   :on-change-date on-change-date
-
-                   :on-form-submit-error
-                   (fn [entry]
-                     (dispatch! state {:action :entry-form-show-errors
-                                       :for-entry entry}))
-
-                   }))))
+                   :input-entry (input-entry for-state)}))))
   state
   {:target (js/document.getElementById "entry-form-react-container")})
 

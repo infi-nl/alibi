@@ -5,7 +5,8 @@
     [alibi.logging :refer [log log-cljs]]
     [time.core :refer [expand-time]]
     [om.core :as om]
-    [om.dom :as dom]))
+    [om.dom :as dom]
+    [alibi.actions :as actions]))
 
 (declare render-state render-to-dom on-date-change validate-form)
 
@@ -153,8 +154,6 @@
   [for-state]
   (let [{:keys [input-entry
                 dispatch!
-                on-change-date
-                on-valid-entry
                 on-form-submit-error
                 ]} for-state
         {:keys [startTime endTime selected-date comment isBillable
@@ -182,7 +181,9 @@
           #js {:method "post"
                :action (str "/entry/" selected-date)
                :className "form-horizontal entry-form"
-               :onSubmit (partial on-form-submit input-entry on-form-submit-error)}
+               :onSubmit (partial on-form-submit input-entry
+                                  #(dispatch! {:action :entry-form-show-errors
+                                               :for-entry %}))}
           (dom/div
             #js {:className (string/join
                               " "
@@ -244,7 +245,7 @@
                                                             new-date
                                                             (.. js/JSJoda -LocalDate
                                                                 (ofInstant instant) toString)]
-                                                        (on-change-date new-date)))}))
+                                                        (dispatch! (actions/change-entry-page-date new-date))))}))
                             " "
                             (dom/div
                               #js {:className (str "form-group"
