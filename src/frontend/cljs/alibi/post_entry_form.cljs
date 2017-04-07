@@ -59,36 +59,12 @@
       nil)))
 
 
-(defn c [& args]
-  (apply (. js/React -createElement) (map clj->js args)))
 
-(defn react-component' [for-state owner]
+(defn react-component [for-state owner]
   (reify
     om/IRender
     (render [_]
       (render-state for-state))))
-
-(def react-component
-  (. js/React createClass
-     (clj->js
-       {
-        :getInitialState
-        (fn []
-          (this-as this
-                   (.-props this)))
-
-        :componentWillReceiveProps
-        (fn [props]
-          (this-as this
-                   (.setState this props)))
-
-        :render
-        (fn []
-          (this-as
-            this
-            (let [props-clj (js->clj (.-state this) :keywordize-keys true)]
-              (let [result (.call render-state this props-clj)]
-                result))))})))
 
 (def time-formatter (.. js/JSJoda -DateTimeFormatter (ofPattern "HH:mm")))
 
