@@ -291,6 +291,7 @@
 (add-watch
   state :renderer
   (fn [_ _ _ new-state]
+    ;(log "new-state %o" new-state)
     (render-day-entry-table! new-state)))
 
 (reset! state @state)
