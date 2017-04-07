@@ -740,7 +740,7 @@
   (-> (input-entry post-entry-form-cursor
                    (:selected-date selected-date-cursor)
                    selected-item-cursor)
-      (post-entry-form/additional-entry)
+      (post-entry-form/additional-entry) ;TODO we shouldnt depend on post-entry-form here, or do we?
       (state/input-entry->data-entry)))
 
 (defn render-html [state owner]
