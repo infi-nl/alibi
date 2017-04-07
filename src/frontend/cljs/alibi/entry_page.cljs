@@ -146,22 +146,8 @@
       om/IRender
       (render [_]
         (om/build post-entry-form/react-component
-                  {:input-entry (input-entry for-state)
-
-                   :on-change-comment
-                   (fn [comment]
-                     (dispatch! state {:action :change-comment
-                                       :comment comment}))
-
-                   :on-change-start-time
-                   (fn [start-time]
-                     (dispatch! state {:action :change-start-time
-                                       :start-time start-time}))
-
-                   :on-change-end-time
-                   (fn [end-time]
-                     (dispatch! state {:action :change-end-time
-                                       :end-time end-time}))
+                  {:dispatch! (partial dispatch! state)
+                   :input-entry (input-entry for-state)
 
                    :on-change-billable?
                    (fn [billable?]
@@ -183,16 +169,13 @@
   state
   {:target (js/document.getElementById "entry-form-react-container")})
 
-(defn build-activity-graphic-state [for-state]
-  {:dispatch! (partial dispatch! state)})
-
 (om/root
   (fn [for-state owner]
     (reify
       om/IRender
       (render [_]
         (om/build activity-graphic/render-html
-                  (build-activity-graphic-state for-state)))))
+                  {:dispatch! (partial dispatch! state)}))))
     state
     {:target (js/document.getElementById "activity-graphic")})
 
@@ -202,7 +185,7 @@
       om/IRender
       (render [_]
         (om/build activity-graphic/render-tooltip
-                  (build-activity-graphic-state for-state)))))
+                  {:dispatch! (partial dispatch! state)}))))
   state
   {:target (js/document.getElementById "activity-graphic-tooltip-container")})
 

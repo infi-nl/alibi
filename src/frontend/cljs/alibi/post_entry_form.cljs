@@ -152,11 +152,9 @@
 (defn render-state
   [for-state]
   (let [{:keys [input-entry
-                on-change-comment
+                dispatch!
                 on-change-date
-                on-change-start-time
                 on-change-end-time
-                on-change-billable?
                 on-cancel-entry
                 on-valid-entry
                 on-form-submit-error
@@ -168,7 +166,13 @@
         editing? (integer? (parse-float entry-id))]
     (when input-entry
       ;(log "render-state" comment)
-      (let [summary-errors (seq (when formWasSubmitted
+      (let [on-change-start-time (fn [start-time]
+                                   (dispatch! {:action :change-start-time
+                                               :start-time start-time}))
+            on-change-end-time (fn [end-time]
+                                 (dispatch! {:action :change-end-time
+                                             :end-time end-time}))
+            summary-errors (seq (when formWasSubmitted
                                   (validate-form submit-time-state)))
             active-errors (seq (when formWasSubmitted
                                  (validate-form input-entry)))
@@ -319,7 +323,8 @@
                             #js {:type "text"
                                  :name "comment"
                                  :value comment
-                                 :onChange #(on-change-comment (.. % -target -value))
+                                 :onChange #(dispatch! {:action :change-comment
+                                                        :comment (.. % -target -value)})
                                  :id "comment"
                                  :className "form-control"})
                           (dom/span
@@ -339,8 +344,8 @@
                                      :id "billable"
                                      :name "billable?"
                                      :checked isBillable
-                                     :onChange #(on-change-billable?
-                                                  (.. % -target -checked))})
+                                     :onChange #(dispatch! {:action :change-billable?
+                                                            :billable? (.. % -target -checked)})})
                               "This entry is billable"))))
                       (dom/div
                         #js {:className "form-group"}
