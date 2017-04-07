@@ -745,9 +745,10 @@
   (reify
     om/IRender
     (render [_]
-      (let [project-data (merge-entries (-> state :project-data :data)
+      (let [entries (om/observe owner (state/entries))
+            mouse-over-entry (om/observe owner (state/mouse-over-entry))
+            project-data (merge-entries entries
                                         (-> state :additional-entries))
-            mouse-over-entry (:mouse-over-entry state)
             entry-id (:entry-id mouse-over-entry)
             {:keys [left top width]} (:pos mouse-over-entry)
             comment (->> project-data

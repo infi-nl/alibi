@@ -105,7 +105,7 @@
           (assoc prev-state :activity-graphic-mouse-over-entry (:entry payload))
 
           :mouse-leave-entry
-          (dissoc prev-state :activity-graphic-mouse-over-entry)
+          (assoc prev-state :activity-graphic-mouse-over-entry {})
 
           :edit-entry
           (let [entry (data-entry->input-entry
@@ -217,9 +217,6 @@
     {:dispatch! (partial dispatch! state)
 
      :on-change-date on-change-date
-
-     :mouse-over-entry
-     (:activity-graphic-mouse-over-entry for-state)
 
      :additional-entries (when selected-entry [selected-entry])
      :selected-entry (when selected-entry (:entry-id selected-entry))}))

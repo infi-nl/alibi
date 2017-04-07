@@ -27,7 +27,10 @@
 ;(log "initial state %o" initial-state)
 
 
-(defonce state (atom (merge {:activity-graphic-data []} initial-state)))
+(defonce state (atom (merge {:activity-graphic-data []
+                             :activity-graphic-mouse-over-entry {}} initial-state)))
 
 (defn selected-date [] (om/ref-cursor (om/root-cursor state)))
 (defn entries [] (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))
+(defn mouse-over-entry []
+  (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))
