@@ -188,8 +188,6 @@
     {:dispatch! (partial dispatch! state)
 
      :on-change-date on-change-date
-
-     :additional-entries (when selected-entry [selected-entry])
      }))
 
 (om/root

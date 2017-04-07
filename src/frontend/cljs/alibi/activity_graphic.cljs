@@ -735,6 +735,14 @@
       (assoc :selected-date selected-date
              :selected-item selected-item)))
 
+(defn get-selected-entry
+  [post-entry-form-cursor selected-date-cursor selected-item-cursor]
+  (-> (input-entry post-entry-form-cursor
+                   (:selected-date selected-date-cursor)
+                   selected-item-cursor)
+      (post-entry-form/additional-entry)
+      (state/input-entry->data-entry)))
+
 (defn render-html [state owner]
   (reify
     om/IRender
@@ -743,14 +751,13 @@
             selected-date (om/observe owner (state/selected-date))
             post-entry-form (om/observe owner (state/post-entry-form))
             selected-item (om/observe owner (state/selected-item))
-            selected-entry (-> (input-entry post-entry-form
-                                            (:selected-date selected-date)
-                                            selected-item)
-                               (post-entry-form/additional-entry)
-                               (state/input-entry->data-entry))]
+            selected-entry (get-selected-entry post-entry-form
+                                               selected-date selected-item)]
         (render-graphic (-> state
                             (assoc :selected-entry (when selected-entry
-                                                     (:entry-id selected-entry)))
+                                                     (:entry-id selected-entry))
+                                   :additional-entries (when selected-entry
+                                                         [selected-entry]))
                             (assoc-in [:project-data :data] entries)
                             (assoc-in [:project-data :selected-date]
                                       (:selected-date selected-date))))))))
@@ -762,8 +769,16 @@
     (render [_]
       (let [entries (om/observe owner (state/entries))
             mouse-over-entry (om/observe owner (state/mouse-over-entry))
+
+            selected-date (om/observe owner (state/selected-date))
+            post-entry-form (om/observe owner (state/post-entry-form))
+            selected-item (om/observe owner (state/selected-item))
+            selected-entry (get-selected-entry post-entry-form
+                                               selected-date
+                                               selected-item)
             project-data (merge-entries entries
-                                        (-> state :additional-entries))
+                                        (when selected-entry
+                                          [selected-entry]))
             entry-id (:entry-id mouse-over-entry)
             {:keys [left top width]} (:pos mouse-over-entry)
             comment (->> project-data
