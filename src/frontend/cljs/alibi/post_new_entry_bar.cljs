@@ -41,7 +41,7 @@
          (escape-fn billing-method)
          "</span></div>")))
 
-(defn entry-bar-form' [for-state owner]
+(defn entry-bar-form [for-state owner]
   (letfn [(get-selectize [] (.. (js/$ (om/get-node owner "the-form"))
                               (find "select")
                               (get 0)

@@ -159,7 +159,7 @@
     (reify
       om/IRender
       (render [_]
-        (om/build post-new-entry-bar/entry-bar-form'
+        (om/build post-new-entry-bar/entry-bar-form
                   {:options (get-in for-state [:post-new-entry-bar :options])
                    :options-by-id (get-in for-state [:post-new-entry-bar :options-by-id])
                    :selected-item (:selected-item for-state)
