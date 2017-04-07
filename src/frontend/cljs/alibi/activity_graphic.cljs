@@ -66,7 +66,7 @@
       (recur (. for-date plusDays -1)))))
 
 (defn c [el attrs & children]
-  (log "attrs %o" attrs)
+  ;(log "attrs %o" attrs)
   (apply js/React.createElement el attrs children))
 
 (defn svg-glow [id color & {:keys [radius std-dev] :or {:radius 1 :std-dev 1}}]
