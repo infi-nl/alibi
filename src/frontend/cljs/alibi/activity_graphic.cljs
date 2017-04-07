@@ -733,8 +733,12 @@
   (reify
     om/IRender
     (render [_]
-      (let [entries (om/observe owner (state/entries))]
-        (render-graphic (assoc-in state [:project-data :data] entries))))))
+      (let [entries (om/observe owner (state/entries))
+            selected-date (om/observe owner (state/selected-date))]
+        (render-graphic (-> state
+                            (assoc-in [:project-data :data] entries)
+                            (assoc-in [:project-data :selected-date]
+                                      (:selected-date selected-date))))))))
 
 (defn render-tooltip
   [state owner]

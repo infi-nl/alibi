@@ -29,5 +29,5 @@
 
 (defonce state (atom (merge {:activity-graphic-data []} initial-state)))
 
-(defn selected-date [] (om/ref-cursor (:selected-date (om/root-cursor state))))
+(defn selected-date [] (om/ref-cursor (om/root-cursor state)))
 (defn entries [] (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))

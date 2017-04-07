@@ -214,10 +214,7 @@
         selected-entry (-> (input-entry for-state)
                            (post-entry-form/additional-entry)
                            (input-entry->data-entry))]
-    {:project-data
-     {:selected-date selected-date}
-
-     :dispatch! (partial dispatch! state)
+    {:dispatch! (partial dispatch! state)
 
      :on-change-date on-change-date
 
