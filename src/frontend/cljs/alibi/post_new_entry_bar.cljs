@@ -86,7 +86,7 @@
 
       om/IDidUpdate
       (did-update [_ _ _]
-        (let [{:keys [projectId taskId]} (state/selected-item)
+        (let [{:keys [projectId taskId]} (state/selected-task)
               selectize (get-selectize)
               current-val (.getValue selectize)]
           (if (and projectId taskId)
@@ -100,9 +100,8 @@
       (render [_]
         (log "rerendering")
         (let [post-new-entry-bar-state (om/observe owner (state/post-new-entry-bar))
-              selected-item (om/observe owner (state/selected-item))
+              {:keys [projectId taskId]} (om/observe owner (state/selected-task))
               options (:options post-new-entry-bar-state)
-              {:keys [projectId taskId]} selected-item
               select-value (if (and projectId taskId)
                              (str projectId "," taskId) "")]
           (dom/form

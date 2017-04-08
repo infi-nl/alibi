@@ -751,9 +751,9 @@
       (let [entries (om/observe owner (state/entries))
             selected-date (om/observe owner (state/selected-date'))
             post-entry-form (om/observe owner (state/post-entry-form))
-            selected-item (om/observe owner (state/selected-item))
+            selected-task (om/observe owner (state/selected-task))
             selected-entry (get-selected-entry post-entry-form
-                                               selected-date selected-item)]
+                                               selected-date selected-task)]
         (render-graphic (-> (select-keys state [:dispatch!])
                             (assoc :selected-entry (when selected-entry
                                                      (:entry-id selected-entry))
@@ -773,10 +773,10 @@
 
             selected-date (om/observe owner (state/selected-date'))
             post-entry-form (om/observe owner (state/post-entry-form))
-            selected-item (om/observe owner (state/selected-item))
+            selected-task (om/observe owner (state/selected-task))
             selected-entry (get-selected-entry post-entry-form
                                                selected-date
-                                               selected-item)
+                                               selected-task)
             project-data (merge-entries entries
                                         (when selected-entry
                                           [selected-entry]))

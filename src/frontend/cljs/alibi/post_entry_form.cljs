@@ -66,8 +66,8 @@
     (render [_]
       (let [form (om/observe owner (state/post-entry-form))
             date (om/observe owner (state/selected-date'))
-            item (om/observe owner (state/selected-item))
-            input-entry (state/input-entry form (:date date) item)]
+            task (om/observe owner (state/selected-task))
+            input-entry (state/input-entry form (:date date) task)]
         (render-state {:dispatch! (:dispatch! for-state)
                        :input-entry input-entry})))))
 

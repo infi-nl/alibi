@@ -57,7 +57,7 @@
   (let [next-state
         (case action
           :select-task
-          (assoc prev-state :selected-item (:task payload))
+          (assoc-in prev-state [:form :selected-task] (:task payload))
 
           ;:change-date
           ;(assoc-in prev-state [:post-entry-form :selectedDate] (:date payload))
@@ -79,11 +79,11 @@
 
             (-> prev-state
                 (assoc-in [:form :selected-date :date] (:selected-date entry))
-                (assoc :selected-item (:selected-item entry)
-                       :selected-entry entry)))
+                (assoc-in [:form :selected-task] (:selected-item entry))
+                (assoc :selected-entry entry)))
 
           :cancel-entry
-          (assoc prev-state :selected-item {})
+          (assoc-in prev-state [:form :selected-task] {})
 
           prev-state)]
     (update next-state :post-entry-form post-entry-form/reducer payload next-state)))

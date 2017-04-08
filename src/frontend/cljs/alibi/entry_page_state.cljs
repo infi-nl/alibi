@@ -75,12 +75,12 @@
              :selected-item selected-item)))
 
 (defn selected-date' [] (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-date])))
+(defn selected-task []
+  (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-task])))
 (defn entries [] (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))
 (defn mouse-over-entry []
   (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))
 (defn post-entry-form []
   (om/ref-cursor (:post-entry-form (om/root-cursor state))))
-(defn selected-item []
-  (om/ref-cursor (:selected-item (om/root-cursor state))))
 (defn post-new-entry-bar []
   (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))
