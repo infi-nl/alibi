@@ -64,7 +64,7 @@
 
           :receive-activity-graphic-data
           (-> prev-state
-              (assoc :selected-date (:for-date payload))
+              (assoc-in [:form :selected-date :date] (:for-date payload))
               (assoc :activity-graphic-data (vec (:data payload))))
 
           :mouse-over-entry
@@ -78,8 +78,8 @@
                         (get-entry prev-state (:entry-id payload)))]
 
             (-> prev-state
+                (assoc-in [:form :selected-date :date] (:selected-date entry))
                 (assoc :selected-item (:selected-item entry)
-                       :selected-date (:selected-date entry)
                        :selected-entry entry)))
 
           :cancel-entry
@@ -106,7 +106,7 @@
 (let [current-state @state]
   (when-not (seq (:activity-graphic-data current-state))
     (log "fetching initial ag data")
-    (fetch-ag-data! (get current-state :selected-date))))
+    (fetch-ag-data! (get-in current-state [:form :selected-date :date]))))
 
 ; if you wonder why we introduce an itermediate IRender here: it seems Om
 ; ref-cursors only work if there is at least one om/root that binds to the root
@@ -139,7 +139,7 @@
 
 (defn render-day-entry-table!
   [for-state]
-  (let [new-date (get for-state :selected-date)]
+  (let [new-date (get-in for-state [:form :selected-date :date])]
     (day-entry-table/render "day-entry-table" new-date)))
 
 (add-watch

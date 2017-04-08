@@ -74,7 +74,7 @@
       (assoc :selected-date selected-date
              :selected-item selected-item)))
 
-(defn selected-date [] (om/ref-cursor (om/root-cursor state)))
+(defn selected-date' [] (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-date])))
 (defn entries [] (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))
 (defn mouse-over-entry []
   (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))

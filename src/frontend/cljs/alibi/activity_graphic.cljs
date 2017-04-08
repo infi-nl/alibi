@@ -739,7 +739,7 @@
 (defn get-selected-entry
   [post-entry-form-cursor selected-date-cursor selected-item-cursor]
   (-> (input-entry post-entry-form-cursor
-                   (:selected-date selected-date-cursor)
+                   (:date selected-date-cursor)
                    selected-item-cursor)
       (post-entry-form/additional-entry) ;TODO we shouldnt depend on post-entry-form here, or do we?
       (state/input-entry->data-entry)))
@@ -749,7 +749,7 @@
     om/IRender
     (render [_]
       (let [entries (om/observe owner (state/entries))
-            selected-date (om/observe owner (state/selected-date))
+            selected-date (om/observe owner (state/selected-date'))
             post-entry-form (om/observe owner (state/post-entry-form))
             selected-item (om/observe owner (state/selected-item))
             selected-entry (get-selected-entry post-entry-form
@@ -761,7 +761,7 @@
                                                          [selected-entry]))
                             (assoc-in [:project-data :data] entries)
                             (assoc-in [:project-data :selected-date]
-                                      (:selected-date selected-date))))))))
+                                      (:date selected-date))))))))
 
 (defn render-tooltip
   [state owner]
@@ -771,7 +771,7 @@
       (let [entries (om/observe owner (state/entries))
             mouse-over-entry (om/observe owner (state/mouse-over-entry))
 
-            selected-date (om/observe owner (state/selected-date))
+            selected-date (om/observe owner (state/selected-date'))
             post-entry-form (om/observe owner (state/post-entry-form))
             selected-item (om/observe owner (state/selected-item))
             selected-entry (get-selected-entry post-entry-form
