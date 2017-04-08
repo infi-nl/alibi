@@ -69,10 +69,10 @@
        :project (project-name (get-in entry [:selected-item :project-id]))
        :entry-id (:entry-id entry)})))
 
-(defn input-entry [post-entry-form selected-date selected-item]
-  (-> post-entry-form
-      (assoc :selected-date selected-date
-             :selected-item selected-item)))
+(defn input-entry [entry-screen-form]
+  (-> (:post-entry-form entry-screen-form)
+      (assoc :selected-date (get-in entry-screen-form [:selected-date :date])
+             :selected-item (get-in entry-screen-form [:selected-task]))))
 
 (defn selected-date []
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-date])))
@@ -80,6 +80,8 @@
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-task])))
 (defn post-entry-form []
   (om/ref-cursor (get-in (om/root-cursor state) [:form :post-entry-form])))
+(defn entry-screen-form []
+  (om/ref-cursor (:form (om/root-cursor state))))
 
 (defn entries [] (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))
 (defn mouse-over-entry []

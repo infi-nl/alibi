@@ -64,10 +64,8 @@
   (reify
     om/IRender
     (render [_]
-      (let [form (om/observe owner (state/post-entry-form))
-            date (om/observe owner (state/selected-date))
-            task (om/observe owner (state/selected-task))
-            input-entry (state/input-entry form (:date date) task)]
+      (let [form (om/observe owner (state/entry-screen-form))
+            input-entry (state/input-entry form)]
         (render-state {:dispatch! (:dispatch! for-state)
                        :input-entry input-entry})))))
 
