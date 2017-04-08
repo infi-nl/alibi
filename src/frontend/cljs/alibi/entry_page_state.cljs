@@ -77,3 +77,5 @@
   (om/ref-cursor (:post-entry-form (om/root-cursor state))))
 (defn selected-item []
   (om/ref-cursor (:selected-item (om/root-cursor state))))
+(defn post-new-entry-bar []
+  (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))

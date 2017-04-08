@@ -6,7 +6,8 @@
     [goog.string :as gstring]
     [goog.string.format]
     [om.core :as om]
-    [om.dom :as dom]))
+    [om.dom :as dom]
+    [alibi.entry-page-state :as state]))
 
 (defn parse-float [v]
   (js/parseFloat v))
@@ -42,10 +43,11 @@
          "</span></div>")))
 
 (defn entry-bar-form [for-state owner]
-  (letfn [(get-selectize [] (.. (js/$ (om/get-node owner "the-form"))
-                              (find "select")
-                              (get 0)
-                              -selectize))]
+  (let [get-selectize (fn [] (.. (js/$ (om/get-node owner "the-form"))
+                                 (find "select")
+                                 (get 0)
+                                 -selectize))
+        post-new-entry-bar-state  (state/post-new-entry-bar)]
     (reify
       om/IDidMount
       (did-mount [_]
@@ -57,9 +59,9 @@
              :selectOnTab true
              :score (partial selectize-score-fn for-state)
              :render #js {:option (partial selectize-render-option
-                                           (:options-by-id for-state))
+                                           (:options-by-id post-new-entry-bar-state))
                           :item (fn [i e] (selectize-render-option
-                                            (:options-by-id for-state)
+                                            (:options-by-id post-new-entry-bar-state)
                                             i e "option-selected"))}})
           (let [selectize (aget $select 0 "selectize")]
             (.on selectize "dropdown_close"
@@ -83,7 +85,7 @@
 
       om/IDidUpdate
       (did-update [_ _ _]
-        (let [{:keys [projectId taskId]} (:selected-item for-state)
+        (let [{:keys [projectId taskId]} (state/selected-item)
               selectize (get-selectize)
               current-val (.getValue selectize)]
           (if (and projectId taskId)
@@ -96,8 +98,10 @@
       om/IRender
       (render [_]
         ;(log "rerendering")
-        (let [options (:options for-state)
-              {:keys [projectId taskId]} (:selected-item for-state)
+        (let [post-new-entry-bar-state (om/observe owner post-new-entry-bar-state)
+              selected-item (om/observe owner (state/selected-item))
+              options (:options post-new-entry-bar-state)
+              {:keys [projectId taskId]} selected-item
               select-value (if (and projectId taskId)
                              (str projectId "," taskId) "")]
           (dom/form
