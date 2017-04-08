@@ -6,7 +6,8 @@
     [time.core :refer [expand-time]]
     [om.core :as om]
     [om.dom :as dom]
-    [alibi.actions :as actions]))
+    [alibi.actions :as actions]
+    [alibi.entry-page-state :as state]))
 
 (declare render-state render-to-dom on-date-change validate-form)
 
@@ -59,13 +60,16 @@
       input-entry'
       nil)))
 
-
-
 (defn react-component [for-state owner]
   (reify
     om/IRender
     (render [_]
-      (render-state for-state))))
+      (let [input-entry (state/input-entry)
+            _ (om/observe owner (state/post-entry-form))
+            _ (om/observe owner (state/selected-date))
+            _ (om/observe owner (state/selected-item))]
+        (render-state {:dispatch! (:dispatch! for-state)
+                       :input-entry input-entry})))))
 
 (def time-formatter (.. js/JSJoda -DateTimeFormatter (ofPattern "HH:mm")))
 
@@ -154,7 +158,6 @@
   [for-state]
   (let [{:keys [input-entry
                 dispatch!
-                on-form-submit-error
                 ]} for-state
         {:keys [startTime endTime selected-date comment isBillable
                 formWasSubmitted submit-time-state selected-item

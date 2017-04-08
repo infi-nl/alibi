@@ -26,12 +26,6 @@
 
 (def time-formatter (.ofPattern DateTimeFormatter "HH:mm"))
 
-(defn input-entry [for-state]
-  (-> (:post-entry-form for-state)
-      (assoc :selected-date (:selected-date for-state)
-             :selected-item (:selected-item for-state))))
-
-
 (defn epoch->time-str [epoch]
   (.format (LocalTime.ofInstant (Instant.ofEpochSecond epoch))
            time-formatter))
@@ -130,8 +124,7 @@
       om/IRender
       (render [_]
         (om/build post-entry-form/react-component
-                  {:dispatch! (partial dispatch! state)
-                   :input-entry (input-entry for-state)}))))
+                  {:dispatch! (partial dispatch! state)}))))
   state
   {:target (js/document.getElementById "entry-form-react-container")})
 

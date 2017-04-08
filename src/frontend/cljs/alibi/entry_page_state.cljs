@@ -69,6 +69,12 @@
        :project (project-name (get-in entry [:selected-item :projectId]))
        :entry-id (:entry-id entry)})))
 
+(defn input-entry []
+  (let [for-state @state]
+    (-> (:post-entry-form for-state)
+        (assoc :selected-date (:selected-date for-state)
+               :selected-item (:selected-item for-state)))))
+
 (defn selected-date [] (om/ref-cursor (om/root-cursor state)))
 (defn entries [] (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))
 (defn mouse-over-entry []
