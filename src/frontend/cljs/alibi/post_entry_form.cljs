@@ -64,10 +64,10 @@
   (reify
     om/IRender
     (render [_]
-      (let [input-entry (state/input-entry)
-            _ (om/observe owner (state/post-entry-form))
-            _ (om/observe owner (state/selected-date))
-            _ (om/observe owner (state/selected-item))]
+      (let [form (om/observe owner (state/post-entry-form))
+            date (om/observe owner (state/selected-date))
+            item (om/observe owner (state/selected-item))
+            input-entry (state/input-entry form (:selected-date date) item)]
         (render-state {:dispatch! (:dispatch! for-state)
                        :input-entry input-entry})))))
 
