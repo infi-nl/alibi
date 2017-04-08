@@ -100,8 +100,9 @@
       (render [_]
         (log "rerendering")
         (let [post-new-entry-bar-state (om/observe owner (state/post-new-entry-bar))
-              {:keys [project-id task-id]} (om/observe owner (state/selected-task))
               options (:options post-new-entry-bar-state)
+
+              {:keys [project-id task-id]} (om/observe owner (state/selected-task))
               select-value (if (and project-id task-id)
                              (str project-id "," task-id) "")]
           (dom/form

@@ -731,16 +731,9 @@
                      svg)))]
       html)))
 
-(defn input-entry [form selected-date selected-item]
-  (-> form
-      (assoc :selected-date selected-date
-             :selected-item selected-item)))
-
 (defn get-selected-entry
-  [post-entry-form-cursor selected-date-cursor selected-item-cursor]
-  (-> (input-entry post-entry-form-cursor
-                   (:date selected-date-cursor)
-                   selected-item-cursor)
+  [entry-screen-form]
+  (-> (state/input-entry entry-screen-form)
       (post-entry-form/additional-entry) ;TODO we shouldnt depend on post-entry-form here, or do we?
       (state/input-entry->data-entry)))
 
@@ -749,11 +742,8 @@
     om/IRender
     (render [_]
       (let [entries (om/observe owner (state/entries))
-            selected-date (om/observe owner (state/selected-date))
-            post-entry-form (om/observe owner (state/post-entry-form))
-            selected-task (om/observe owner (state/selected-task))
-            selected-entry (get-selected-entry post-entry-form
-                                               selected-date selected-task)]
+            entry-screen-form (om/observe owner (state/entry-screen-form))
+            selected-entry (get-selected-entry entry-screen-form)]
         (render-graphic (-> (select-keys state [:dispatch!])
                             (assoc :selected-entry (when selected-entry
                                                      (:entry-id selected-entry))
@@ -761,7 +751,7 @@
                                                          [selected-entry]))
                             (assoc-in [:project-data :data] entries)
                             (assoc-in [:project-data :selected-date]
-                                      (:date selected-date))))))))
+                                      (get-in entry-screen-form [:selected-date :date]))))))))
 
 (defn render-tooltip
   [state owner]
@@ -770,13 +760,9 @@
     (render [_]
       (let [entries (om/observe owner (state/entries))
             mouse-over-entry (om/observe owner (state/mouse-over-entry))
+            entry-screen-form (om/observe owner (state/entry-screen-form))
 
-            selected-date (om/observe owner (state/selected-date))
-            post-entry-form (om/observe owner (state/post-entry-form))
-            selected-task (om/observe owner (state/selected-task))
-            selected-entry (get-selected-entry post-entry-form
-                                               selected-date
-                                               selected-task)
+            selected-entry (get-selected-entry entry-screen-form)
             project-data (merge-entries entries
                                         (when selected-entry
                                           [selected-entry]))
