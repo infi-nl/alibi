@@ -749,7 +749,7 @@
     om/IRender
     (render [_]
       (let [entries (om/observe owner (state/entries))
-            selected-date (om/observe owner (state/selected-date'))
+            selected-date (om/observe owner (state/selected-date))
             post-entry-form (om/observe owner (state/post-entry-form))
             selected-task (om/observe owner (state/selected-task))
             selected-entry (get-selected-entry post-entry-form
@@ -771,7 +771,7 @@
       (let [entries (om/observe owner (state/entries))
             mouse-over-entry (om/observe owner (state/mouse-over-entry))
 
-            selected-date (om/observe owner (state/selected-date'))
+            selected-date (om/observe owner (state/selected-date))
             post-entry-form (om/observe owner (state/post-entry-form))
             selected-task (om/observe owner (state/selected-task))
             selected-entry (get-selected-entry post-entry-form

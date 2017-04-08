@@ -65,7 +65,7 @@
     om/IRender
     (render [_]
       (let [form (om/observe owner (state/post-entry-form))
-            date (om/observe owner (state/selected-date'))
+            date (om/observe owner (state/selected-date))
             task (om/observe owner (state/selected-task))
             input-entry (state/input-entry form (:date date) task)]
         (render-state {:dispatch! (:dispatch! for-state)
