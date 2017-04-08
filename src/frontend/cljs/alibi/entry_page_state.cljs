@@ -81,6 +81,6 @@
 (defn mouse-over-entry []
   (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))
 (defn post-entry-form []
-  (om/ref-cursor (:post-entry-form (om/root-cursor state))))
+  (om/ref-cursor (get-in (om/root-cursor state) [:form :post-entry-form])))
 (defn post-new-entry-bar []
   (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))

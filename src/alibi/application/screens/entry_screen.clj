@@ -94,11 +94,7 @@
                                  {:project-id selected-project-id
                                   :task-id selected-task-id} {})}
          :post-new-entry-bar {:options (map bookable-project-task->option
-                                            bookable-projects-and-tasks)}
-         :post-entry-form {:startTime start-time
-                           :endTime end-time
-                           :isBillable billable?
-                           :comment comment}}})}))
+                                            bookable-projects-and-tasks)}}})}))
 
 (defn- default-client-state
   [for-date identity selected-task-id]

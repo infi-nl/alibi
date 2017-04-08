@@ -86,7 +86,7 @@
           (assoc-in prev-state [:form :selected-task] {})
 
           prev-state)]
-    (update next-state :post-entry-form post-entry-form/reducer payload next-state)))
+    (update-in next-state [:form :post-entry-form] post-entry-form/reducer payload next-state)))
 
 (defn dispatch!
   [state-atom action]
