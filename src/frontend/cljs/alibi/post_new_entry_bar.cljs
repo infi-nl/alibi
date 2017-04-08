@@ -98,8 +98,8 @@
 
       om/IRender
       (render [_]
-        ;(log "rerendering")
-        (let [post-new-entry-bar-state (om/observe owner post-new-entry-bar-state)
+        (log "rerendering")
+        (let [post-new-entry-bar-state (om/observe owner (state/post-new-entry-bar))
               selected-item (om/observe owner (state/selected-item))
               options (:options post-new-entry-bar-state)
               {:keys [projectId taskId]} selected-item

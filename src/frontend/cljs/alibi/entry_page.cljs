@@ -108,44 +108,33 @@
     (log "fetching initial ag data")
     (fetch-ag-data! (get current-state :selected-date))))
 
+; if you wonder why we introduce an itermediate IRender here: it seems Om
+; ref-cursors only work if there is at least one om/root that binds to the root
+; atom
 (om/root
-  (fn [for-state owner]
-    (reify
-      om/IRender
-      (render [_]
-        (om/build post-new-entry-bar/entry-bar-form
-                  {:dispatch! (partial dispatch! state)}))))
+  (let [dispatch! (partial dispatch! state)] ; make sure entry-bar-form gets a constant state
+    (fn [for-state owner]
+      (reify
+        om/IRender
+        (render [_]
+          (om/build post-new-entry-bar/entry-bar-form
+                    {:dispatch! dispatch!})))))
   state
   {:target (js/document.getElementById "post-new-entry-bar-container")})
 
 (om/root
-  (fn [for-state owner]
-    (reify
-      om/IRender
-      (render [_]
-        (om/build post-entry-form/react-component
-                  {:dispatch! (partial dispatch! state)}))))
-  state
+  post-entry-form/react-component
+  {:dispatch! (partial dispatch! state)}
   {:target (js/document.getElementById "entry-form-react-container")})
 
 (om/root
-  (fn [for-state owner]
-    (reify
-      om/IRender
-      (render [_]
-        (om/build activity-graphic/render-html
-                  {:dispatch! (partial dispatch! state)}))))
-    state
-    {:target (js/document.getElementById "activity-graphic")})
+  activity-graphic/render-html
+  {:dispatch! (partial dispatch! state)}
+  {:target (js/document.getElementById "activity-graphic")})
 
 (om/root
-  (fn [for-state owner]
-    (reify
-      om/IRender
-      (render [_]
-        (om/build activity-graphic/render-tooltip
-                  {:dispatch! (partial dispatch! state)}))))
-  state
+  activity-graphic/render-tooltip
+  {:dispatch! (partial dispatch! state)}
   {:target (js/document.getElementById "activity-graphic-tooltip-container")})
 
 
