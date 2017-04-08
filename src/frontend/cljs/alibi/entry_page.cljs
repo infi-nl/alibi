@@ -137,12 +137,10 @@
   {:dispatch! (partial dispatch! state)}
   {:target (js/document.getElementById "activity-graphic-tooltip-container")})
 
-
 (defn render-day-entry-table!
   [for-state]
   (let [new-date (get for-state :selected-date)]
     (day-entry-table/render "day-entry-table" new-date)))
-
 
 (add-watch
   state :renderer
