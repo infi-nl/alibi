@@ -15,8 +15,8 @@
 (defn parse-selected-item [v]
   (when (seq v)
     (let [[project-id task-id] (map parse-float (split v #","))]
-      {:projectId project-id
-       :taskId task-id})))
+      {:project-id project-id
+       :task-id task-id})))
 
 (defn selectize-score-fn [options search]
   (let [default-score 0
@@ -86,11 +86,11 @@
 
       om/IDidUpdate
       (did-update [_ _ _]
-        (let [{:keys [projectId taskId]} (state/selected-task)
+        (let [{:keys [project-id task-id]} (state/selected-task)
               selectize (get-selectize)
               current-val (.getValue selectize)]
-          (if (and projectId taskId)
-            (let [new-val (str projectId "," taskId)]
+          (if (and project-id task-id)
+            (let [new-val (str project-id "," task-id)]
               (when-not (= new-val current-val)
                 (.clear selectize)
                 (.addItem selectize new-val)))
@@ -100,10 +100,10 @@
       (render [_]
         (log "rerendering")
         (let [post-new-entry-bar-state (om/observe owner (state/post-new-entry-bar))
-              {:keys [projectId taskId]} (om/observe owner (state/selected-task))
+              {:keys [project-id task-id]} (om/observe owner (state/selected-task))
               options (:options post-new-entry-bar-state)
-              select-value (if (and projectId taskId)
-                             (str projectId "," taskId) "")]
+              select-value (if (and project-id task-id)
+                             (str project-id "," task-id) "")]
           (dom/form
             #js {:id "post-new-entry-bar"
                  :className "navbar-form navbar-form-post-new-entry-bar"

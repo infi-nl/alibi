@@ -162,7 +162,7 @@
         {:keys [startTime endTime selected-date comment isBillable
                 formWasSubmitted submit-time-state selected-item
                 entry-id]} input-entry
-        {:keys [projectId taskId]} selected-item
+        {:keys [project-id task-id]} selected-item
         editing? (integer? (parse-float entry-id))]
     (when input-entry
       ;(log "render-state" comment)
@@ -195,10 +195,10 @@
                  :id "entry-form-container"}
             (dom/input #js {:type "hidden"
                             :name "selected-project-id"
-                            :value (or projectId "")})
+                            :value (or project-id "")})
             (dom/input #js {:type "hidden"
                             :name "selected-task-id"
-                            :value (or taskId "")})
+                            :value (or task-id "")})
             (dom/input #js {:type "hidden"
                             :name "entry-id"
                             :value (or entry-id "")})

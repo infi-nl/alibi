@@ -95,10 +95,6 @@
                                   :task-id selected-task-id} {})}
          :post-new-entry-bar {:options (map bookable-project-task->option
                                             bookable-projects-and-tasks)}
-         :selected-item (if (and (integer? selected-project-id)
-                                   (integer? selected-task-id))
-                          {:projectId selected-project-id
-                           :taskId selected-task-id} {})
          :post-entry-form {:startTime start-time
                            :endTime end-time
                            :isBillable billable?

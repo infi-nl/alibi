@@ -57,16 +57,16 @@
                   (atZone (.systemDefault ZoneId))
                   (toInstant)
                   (epochSecond))]
-      {:task-id (get-in entry [:selected-item :taskId])
-       :project-id (get-in entry [:selected-item :projectId])
+      {:task-id (get-in entry [:selected-item :task-id])
+       :project-id (get-in entry [:selected-item :project-id])
        :billable? (:isBillable entry)
        :comment (:comment entry)
        :user-id 0
        :from start
        :till end
        :duration duration-secs
-       :task (task-name (get-in entry [:selected-item :taskId]))
-       :project (project-name (get-in entry [:selected-item :projectId]))
+       :task (task-name (get-in entry [:selected-item :task-id]))
+       :project (project-name (get-in entry [:selected-item :project-id]))
        :entry-id (:entry-id entry)})))
 
 (defn input-entry [post-entry-form selected-date selected-item]

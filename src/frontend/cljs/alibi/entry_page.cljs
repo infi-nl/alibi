@@ -35,8 +35,8 @@
 
 (defn data-entry->input-entry [entry]
   (when entry
-    {:selected-item {:taskId (:task-id entry)
-                     :projectId (:project-id entry)}
+    {:selected-item {:task-id (:task-id entry)
+                     :project-id (:project-id entry)}
      :selected-date (epoch->date-str (:from entry))
      :isBillable (:billable? entry)
      :comment (:comment entry)
