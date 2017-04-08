@@ -18,10 +18,10 @@
       {:projectId project-id
        :taskId task-id})))
 
-(defn selectize-score-fn [for-state search]
+(defn selectize-score-fn [options search]
   (let [default-score 0
         search-results (. js/fuzzy filter
-                          search (clj->js (:options for-state))
+                          search (clj->js options)
                           #js {:extract #(aget % "text")})
         score-by-option-value
         (into {}
@@ -42,7 +42,7 @@
          (escape-fn billing-method)
          "</span></div>")))
 
-(defn entry-bar-form [for-state owner]
+(defn entry-bar-form [{:keys [dispatch!]} owner]
   (let [get-selectize (fn [] (.. (js/$ (om/get-node owner "the-form"))
                                  (find "select")
                                  (get 0)
@@ -57,7 +57,7 @@
             $select #js
             {:highlight false
              :selectOnTab true
-             :score (partial selectize-score-fn for-state)
+             :score (partial selectize-score-fn (:options post-new-entry-bar-state))
              :render #js {:option (partial selectize-render-option
                                            (:options-by-id post-new-entry-bar-state))
                           :item (fn [i e] (selectize-render-option
@@ -74,9 +74,10 @@
                                   ; updating the state for a later moment
                                   js/window
                                   (fn [] (if (seq value)
-                                           ((:on-select-task for-state)
-                                            (parse-selected-item value))
-                                           ((:on-cancel for-state))))
+                                           (dispatch!
+                                             {:action :select-task
+                                              :task (parse-selected-item value)})
+                                           (dispatch! {:action :cancel-entry})))
                                   0)))))))
       om/IWillUnmount
       (will-unmount [_]

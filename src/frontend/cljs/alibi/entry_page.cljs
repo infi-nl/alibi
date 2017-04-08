@@ -120,13 +120,7 @@
       om/IRender
       (render [_]
         (om/build post-new-entry-bar/entry-bar-form
-                  {:on-cancel
-                   (fn [] (dispatch! state {:action :cancel-entry}))
-
-                   :on-select-task
-                   (fn [selected-task]
-                     (dispatch! state {:action :select-task
-                                       :task selected-task}))}))))
+                  {:dispatch! (partial dispatch! state)}))))
   state
   {:target (js/document.getElementById "post-new-entry-bar-container")})
 
