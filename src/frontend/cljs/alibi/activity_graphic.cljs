@@ -743,15 +743,14 @@
     (render [_]
       (let [entries (om/observe owner (state/entries))
             entry-screen-form (om/observe owner (state/entry-screen-form))
-            selected-entry (get-selected-entry entry-screen-form)]
-        (render-graphic (-> (select-keys state [:dispatch!])
-                            (assoc :selected-entry (when selected-entry
-                                                     (:entry-id selected-entry))
-                                   :additional-entries (when selected-entry
-                                                         [selected-entry]))
-                            (assoc-in [:project-data :data] entries)
-                            (assoc-in [:project-data :selected-date]
-                                      (get-in entry-screen-form [:selected-date :date]))))))))
+            selected-entry (get-selected-entry entry-screen-form)
+            selected-date (get-in entry-screen-form [:selected-date :date])]
+        (render-graphic
+          {:dispatch! (:dispatch! state)
+           :selected-entry (when selected-entry (:entry-id selected-entry))
+           :additional-entries (when selected-entry [selected-entry])
+           :project-data {:data entries
+                          :selected-date selected-date}})))))
 
 (defn render-tooltip
   [state owner]
@@ -764,8 +763,7 @@
 
             selected-entry (get-selected-entry entry-screen-form)
             project-data (merge-entries entries
-                                        (when selected-entry
-                                          [selected-entry]))
+                                        (when selected-entry [selected-entry]))
             entry-id (:entry-id mouse-over-entry)
             {:keys [left top width]} (:pos mouse-over-entry)
             comment (->> project-data
