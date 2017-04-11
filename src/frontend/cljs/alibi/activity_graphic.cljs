@@ -330,7 +330,7 @@
                     :y1 (:y-offset draw-result)
                     :y2 (:y-offset draw-result)
 
-                    :onMouseEnter
+                    :onMouseOver
                     (fn [ev]
                       (let [rect (get-abs-bounding-client-rect
                                    (.-target ev))]
@@ -338,7 +338,7 @@
                           {:entry-id (get-in bar [:bar :entry-id])
                            :pos rect})))
 
-                    :onMouseLeave #(on-mouse-leave-bar)
+                    :onMouseOut #(on-mouse-leave-bar)
 
                     :onClick
                     (fn [ev]
