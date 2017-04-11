@@ -80,6 +80,7 @@
             (-> prev-state
                 (assoc-in [:form :selected-date :date] (:selected-date entry))
                 (assoc-in [:form :selected-task] (:selected-item entry))
+                (assoc :activity-graphic-mouse-over-entry {})
                 (assoc :selected-entry entry)))
 
           :cancel-entry
