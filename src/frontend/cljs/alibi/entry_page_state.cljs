@@ -36,9 +36,6 @@
 ;(log "initial state %o" initial-state)
 
 
-(defonce state (atom (merge {:activity-graphic-data []
-                             :activity-graphic-mouse-over-entry {}} initial-state)))
-
 (defn input-entry->data-entry
   [entry]
   (when entry
@@ -73,6 +70,9 @@
   (-> (:post-entry-form entry-screen-form)
       (assoc :selected-date (get-in entry-screen-form [:selected-date :date])
              :selected-item (get-in entry-screen-form [:selected-task]))))
+
+(defonce state (atom (merge {:activity-graphic-data []
+                             :activity-graphic-mouse-over-entry {}} initial-state)))
 
 (defn selected-date []
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-date])))
