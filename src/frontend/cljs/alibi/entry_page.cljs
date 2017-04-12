@@ -112,6 +112,7 @@
 ; if you wonder why we introduce an itermediate IRender here: it seems Om
 ; ref-cursors only work if there is at least one om/root that binds to the root
 ; atom, so we do that here even though it is not passed on to om/build
+; see also https://github.com/omcljs/om/issues/864
 (om/root
   (let [dispatch! (partial dispatch! state)] ; make sure entry-bar-form gets a constant state
     (fn [_ owner]
