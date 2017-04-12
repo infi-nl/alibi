@@ -157,3 +157,4 @@
     (render-day-entry-table! new-state)))
 
 (reset! state @state)
+(js/console.log @state)

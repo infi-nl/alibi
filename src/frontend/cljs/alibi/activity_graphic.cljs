@@ -733,7 +733,7 @@
 
 (defn get-selected-entry
   [entry-screen-form]
-  (-> (state/input-entry entry-screen-form)
+  (-> (state/form->input-entry entry-screen-form)
       (state/additional-entry) ;TODO we shouldnt depend on post-entry-form here, or do we?
       (state/input-entry->data-entry)))
 

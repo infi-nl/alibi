@@ -85,7 +85,7 @@
       input-entry'
       nil)))
 
-(defn input-entry [entry-screen-form]
+(defn form->input-entry [entry-screen-form]
   (-> (:post-entry-form entry-screen-form)
       (assoc :selected-date (get-in entry-screen-form [:selected-date :date])
              :selected-item (get-in entry-screen-form [:selected-task]))))
