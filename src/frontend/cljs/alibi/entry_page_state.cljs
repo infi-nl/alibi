@@ -1,6 +1,7 @@
 (ns alibi.entry-page-state
   (:require
    [cljs.reader]
+   [clojure.data]
    [alibi.activity-graphic-data-source :as ag-ds]
    [om.core :as om]
    [alibi.logging :refer [log]]
@@ -89,6 +90,14 @@
   (-> (:post-entry-form entry-screen-form)
       (assoc :selected-date (get-in entry-screen-form [:selected-date :date])
              :selected-item (get-in entry-screen-form [:selected-task]))))
+
+(defn form->input-entry' [form]
+  (log "pre" form)
+  (let [res (form->input-entry form)]
+    (log "post" res)
+    (log "diff" (clojure.data/diff form res))
+    res))
+
 
 (defonce state (atom (merge {:activity-graphic-data []
                              :activity-graphic-mouse-over-entry {}}

@@ -228,7 +228,7 @@
 
 (defn render
   [dispatch! form]
-  (let [input-entry (state/form->input-entry form)
+  (let [input-entry (state/form->input-entry' form)
         {:keys [selected-date selected-item entry-id]} input-entry
         {:keys [project-id task-id]} selected-item]
     (when input-entry
@@ -273,4 +273,4 @@
     om/IRender
     (render [_]
       (let [form (om/observe owner (state/entry-screen-form))]
-        (render (:dispatch! for-state) form)))))
+        (render (:dispatch! for-state) @form)))))
