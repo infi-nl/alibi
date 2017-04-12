@@ -11,45 +11,50 @@
     [cljs.reader]
     [om.core :as om]
     [om.dom :as dom]
+    [time.core :refer [unix->time-str unix->date-str]]
     [alibi.entry-page-state :refer [state task-name project-name
-                                    input-entry->data-entry]]))
+                                    input-entry->data-entry
+                                    data-entry->input-entry
+                                    find-entry]]))
 
 (enable-console-print!)
 (defn parse-float [v] (js/parseFloat v))
 
-(def DateTimeFormatter (.-DateTimeFormatter js/JSJoda))
-(def LocalTime (.-LocalTime js/JSJoda))
-(def LocalDate (.-LocalDate js/JSJoda))
-(def ChronoUnit (.-ChronoUnit js/JSJoda))
-(def ZoneId (.-ZoneId js/JSJoda))
-(def Instant js/JSJoda.Instant)
+(defn entry-form-reducer
+  [prev-state {:keys [action] :as payload} next-state]
+  (let [empty-state {:startTime ""
+                     :endTime ""
+                     :isBillable false
+                     :comment ""
+                     :entry-id "new"
+                     :formWasSubmitted false
+                     :submit-time-state nil}]
+    (case action
+      :change-comment
+      (assoc prev-state :comment (:comment payload))
 
-(def time-formatter (.ofPattern DateTimeFormatter "HH:mm"))
+      :change-start-time
+      (assoc prev-state :startTime (:start-time payload))
 
-(defn epoch->time-str [epoch]
-  (.format (LocalTime.ofInstant (Instant.ofEpochSecond epoch))
-           time-formatter))
+      :change-end-time
+      (assoc prev-state :endTime (:end-time payload))
 
-(defn epoch->date-str [epoch]
-  (.toString (LocalDate.ofInstant (Instant.ofEpochSecond epoch))))
+      :change-billable?
+      (assoc prev-state :isBillable (:billable? payload))
 
-(defn data-entry->input-entry [entry]
-  (when entry
-    {:selected-item {:task-id (:task-id entry)
-                     :project-id (:project-id entry)}
-     :selected-date (epoch->date-str (:from entry))
-     :isBillable (:billable? entry)
-     :comment (:comment entry)
-     :startTime (epoch->time-str (:from entry))
-     :endTime (epoch->time-str (:till entry))
-     :entry-id (:entry-id entry)}))
+      :cancel-entry empty-state
 
-(defn get-entry [state entry-id]
-  {:pre [(integer? entry-id)]}
-  (let [ag-data (:activity-graphic-data state)]
-    (->> ag-data
-         (filter #(= (:entry-id %) entry-id))
-         first)))
+      :entry-form-show-errors
+      (assoc prev-state
+             :formWasSubmitted true
+             :submit-time-state (:for-entry payload))
+
+      :edit-entry
+      (merge empty-state
+             (select-keys (:selected-entry next-state)
+                          [:comment :startTime :endTime :isBillable :entry-id]))
+
+      prev-state)))
 
 (defn reducer
   [prev-state {:keys [action] :as payload}]
@@ -75,7 +80,7 @@
 
           :edit-entry
           (let [entry (data-entry->input-entry
-                        (get-entry prev-state (:entry-id payload)))]
+                        (find-entry prev-state (:entry-id payload)))]
 
             (-> prev-state
                 (assoc-in [:form :selected-date :date] (:selected-date entry))
@@ -87,7 +92,8 @@
           (assoc-in prev-state [:form :selected-task] {})
 
           prev-state)]
-    (update-in next-state [:form :post-entry-form] post-entry-form/reducer payload next-state)))
+    (update-in next-state [:form :post-entry-form]
+               entry-form-reducer payload next-state)))
 
 (defn dispatch!
   [state-atom action]
@@ -125,7 +131,7 @@
   {:target (js/document.getElementById "post-new-entry-bar-container")})
 
 (om/root
-  post-entry-form/react-component
+  post-entry-form/om-component
   {:dispatch! (partial dispatch! state)}
   {:target (js/document.getElementById "entry-form-react-container")})
 

@@ -734,7 +734,7 @@
 (defn get-selected-entry
   [entry-screen-form]
   (-> (state/input-entry entry-screen-form)
-      (post-entry-form/additional-entry) ;TODO we shouldnt depend on post-entry-form here, or do we?
+      (state/additional-entry) ;TODO we shouldnt depend on post-entry-form here, or do we?
       (state/input-entry->data-entry)))
 
 (defn render-html [state owner]

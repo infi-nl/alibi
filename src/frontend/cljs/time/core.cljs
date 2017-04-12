@@ -49,10 +49,24 @@
             match
             time-val))))
 
+(def ^:private time-formatter (js/JSJoda.DateTimeFormatter.ofPattern "HH:mm"))
+
 (defn str->unix [date-str time-str]
-  (let [time-formatter (js/JSJoda.DateTimeFormatter.ofPattern "HH:mm")]
-    (.. (js/JSJoda.LocalDate.parse  date-str)
-        (atTime (js/JSJoda.LocalTime.parse  time-str time-formatter))
-        (atZone (js/JSJoda.ZoneId.systemDefault ))
-        (toInstant)
-        (epochSecond))))
+  (.. (js/JSJoda.LocalDate.parse  date-str)
+      (atTime (js/JSJoda.LocalTime.parse  time-str time-formatter))
+      (atZone (js/JSJoda.ZoneId.systemDefault ))
+      (toInstant)
+      (epochSecond)))
+
+(defn unix->time-str [epoch]
+  (.format (js/JSJoda.LocalTime.ofInstant (js/JSJoda.Instant.ofEpochSecond epoch))
+           time-formatter))
+
+(defn unix->date-str [epoch]
+  (.toString (js/JSJoda.LocalDate.ofInstant (js/JSJoda.Instant.ofEpochSecond epoch))))
+
+(defn try-parse-time [v]
+  (try
+    (.. js/JSJoda -LocalTime (from (. time-formatter parse v)))
+    (catch js/Error e
+      nil)))

@@ -7,98 +7,9 @@
     [om.core :as om]
     [om.dom :as dom]
     [alibi.actions :as actions]
-    [alibi.entry-page-state :as state]))
+    [alibi.entry-page-state :as state :refer [validate-form]]))
 
-(declare render-state render-to-dom on-date-change validate-form)
-
-(defn parse-float [v]
-  (js/parseFloat v))
-
-(def initial-state
-  {:startTime ""
-   :endTime ""
-   :isBillable false
-   :comment ""
-   :entry-id "new"
-   :formWasSubmitted false
-   :submit-time-state nil})
-
-(defn reducer
-  [prev-state {:keys [action] :as payload} next-state]
-  (case action
-    :change-comment
-    (assoc prev-state :comment (:comment payload))
-
-    :change-start-time
-    (assoc prev-state :startTime (:start-time payload))
-
-    :change-end-time
-    (assoc prev-state :endTime (:end-time payload))
-
-    :change-billable?
-    (assoc prev-state :isBillable (:billable? payload))
-
-    :cancel-entry initial-state
-
-    :entry-form-show-errors
-    (assoc prev-state
-           :formWasSubmitted true
-           :submit-time-state (:for-entry payload))
-
-    :edit-entry
-    (merge initial-state
-           (select-keys (:selected-entry next-state)
-                        [:comment :startTime :endTime :isBillable :entry-id]))
-
-    prev-state))
-
-(defn additional-entry [input-entry]
-  (let [input-entry' (-> input-entry
-                       (update :startTime expand-time)
-                       (update :endTime expand-time))]
-    (if-not (seq (validate-form input-entry'))
-      input-entry'
-      nil)))
-
-(defn react-component [for-state owner]
-  (reify
-    om/IRender
-    (render [_]
-      (let [form (om/observe owner (state/entry-screen-form))
-            input-entry (state/input-entry form)]
-        (render-state {:dispatch! (:dispatch! for-state)
-                       :input-entry input-entry})))))
-
-(def time-formatter (.. js/JSJoda -DateTimeFormatter (ofPattern "HH:mm")))
-
-(defn try-parse-time [v]
-  (try
-    (.. js/JSJoda -LocalTime (from (. time-formatter parse v)))
-    (catch js/Error e
-      nil)))
-
-(defn validate-form [{:keys [selected-item endTime startTime] :as form-state}]
-  (let [validate
-        (fn [f field-name msg errs]
-          (if (f form-state)
-            errs
-            (conj errs [field-name msg])))
-        errors
-        (->> []
-             (validate (constantly selected-item) "SelectedItem" "Task not selected")
-             (validate #(try-parse-time startTime)
-                       "Start time",
-                       "Please enter a valid time value (e.g. 13:37)")
-             (validate #(try-parse-time endTime)
-                       "End time",
-                       "Please enter a valid time value (e.g. 13:37)"))
-        has-field-error? (into {} errors)]
-    (if (or (has-field-error? "Start time") (has-field-error? "End time"))
-      errors
-      (cond-> errors
-        (>= (. (try-parse-time startTime)
-              (compareTo (try-parse-time endTime))) 0)
-        (conj ["End time" "End time should come after start time"])))))
+(defn parse-float [v] (js/parseFloat v))
 
 (defn on-form-submit [entry on-error event]
   (log "submit")
@@ -369,3 +280,12 @@
                                              (.preventDefault %)
                                              (dispatch! {:action :cancel-entry}))}
                             "Cancel"))))))))))))))
+
+(defn om-component [for-state owner]
+  (reify
+    om/IRender
+    (render [_]
+      (let [form (om/observe owner (state/entry-screen-form))
+            input-entry (state/input-entry form)]
+        (render-state {:dispatch! (:dispatch! for-state)
+                       :input-entry input-entry})))))
