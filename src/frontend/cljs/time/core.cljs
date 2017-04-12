@@ -49,3 +49,10 @@
             match
             time-val))))
 
+(defn str->unix [date-str time-str]
+  (let [time-formatter (js/JSJoda.DateTimeFormatter.ofPattern "HH:mm")]
+    (.. (js/JSJoda.LocalDate.parse  date-str)
+        (atTime (js/JSJoda.LocalTime.parse  time-str time-formatter))
+        (atZone (js/JSJoda.ZoneId.systemDefault ))
+        (toInstant)
+        (epochSecond))))
