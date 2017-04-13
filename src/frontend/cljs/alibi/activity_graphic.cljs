@@ -699,23 +699,16 @@
           (aset el "style" "top" (px (- top (:height rect))))
           (aset el "className" "tooltip top fade in"))))))
 
-(defn merge-entries [merge-on to-merge]
-  (let [ids (set (map :entry-id to-merge))]
-    (concat (remove #(get ids (:entry-id %)) merge-on) to-merge)))
-
 (defn render-graphic
   [{:keys [dispatch!
            project-data
-           additional-entries
            selected-entry] :as state}]
   ;(log "project-data %o" project-data)
   (when (seq project-data)
-    (let [union-records (merge-entries (:data project-data)
-                                       additional-entries)
-          svg (render-svg
+    (let [svg (render-svg
                 dispatch!
                 (:selected-date project-data)
-                (init-data union-records)
+                (init-data (:data project-data))
                 #(dispatch! (actions/change-entry-page-date %))
                 {:selected-entry selected-entry})
 
