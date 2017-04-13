@@ -72,46 +72,44 @@
 (def form-submitted? #(get-in % [:submitted?]))
 (def form-form-at-submit-time #(get-in % [:form-at-submit-time]))
 
-(defn validate-input-entry [{:keys [selected-item endTime startTime] :as form-state}]
+(defn form-validate-form [form]
   (let [validate
         (fn [f field-name msg errs]
-          (if (f form-state)
+          (if (f form)
             errs
             (conj errs [field-name msg])))
         errors
         (->> []
-             (validate (constantly selected-item) "SelectedItem" "Task not selected")
-             (validate #(try-parse-time startTime)
+             (validate #(seq (form-selected-task %)) "SelectedItem" "Task not selected")
+             (validate #(try-parse-time (form-start-time %))
                        "Start time",
                        "Please enter a valid time value (e.g. 13:37)")
-             (validate #(try-parse-time endTime)
+             (validate #(try-parse-time (form-end-time %))
                        "End time",
                        "Please enter a valid time value (e.g. 13:37)"))
         has-field-error? (into {} errors)]
     (if (or (has-field-error? "Start time") (has-field-error? "End time"))
       errors
       (cond-> errors
-        (>= (. (try-parse-time startTime)
-              (compareTo (try-parse-time endTime))) 0)
+        (not (neg? (.compareTo (try-parse-time (form-start-time form))
+                               (try-parse-time (form-end-time form)))))
         (conj ["End time" "End time should come after start time"])))))
 
-(def form-validate-form (comp validate-input-entry form->input-entry))
+(defn form-get-editing-entry [form]
+  (let [form (-> form
+                 (update-in [:post-entry-form :startTime] expand-time)
+                 (update-in [:post-entry-form :endTime] expand-time))]
+    (when-not (seq (form-validate-form form))
+      (input-entry->data-entry (form->input-entry form)))))
 
-(defn additional-entry [input-entry]
-  (let [input-entry' (-> input-entry
-                       (update :startTime expand-time)
-                       (update :endTime expand-time))]
-    (if-not (seq (validate-input-entry input-entry'))
-      input-entry'
-      nil)))
+(defn form-get-editing-entry-id [form]
+  (:entry-id (form-get-editing-entry form)))
 
-(defn form->input-entry' [form]
-  (log "pre" form)
-  (let [res (form->input-entry form)]
-    (log "post" res)
-    (log "diff" (clojure.data/diff form res))
-    res))
-
+(defn entries-add-form-entry [entries form]
+  (if-let [form-entry (form-get-editing-entry form)]
+    (conj (vec (remove #(= (:entry-id form-entry) (:entry-id %)) entries))
+          form-entry)
+    entries))
 
 (defonce state (atom (merge {:activity-graphic-data []
                              :activity-graphic-mouse-over-entry {}}
@@ -128,12 +126,10 @@
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-date])))
 (defn selected-task []
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-task])))
-(defn post-entry-form []
-  (om/ref-cursor (get-in (om/root-cursor state) [:form :post-entry-form])))
 (defn entry-screen-form []
   (om/ref-cursor (:form (om/root-cursor state))))
 
-(defn entries []
+(defn entries-cursor []
   (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))
 (defn mouse-over-entry []
   (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))

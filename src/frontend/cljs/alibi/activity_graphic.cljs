@@ -672,7 +672,7 @@
           #js {:className "glyphicon glyphicon-chevron-right"})))))
 
 (defn tooltip-component [state owner]
-  (let [{:keys [top width left comment records]} state]
+  (let [{:keys [top width left comment ]} state]
     (reify
       om/IRender
       (render [_]
@@ -731,48 +731,38 @@
                      svg)))]
       html)))
 
-(defn get-selected-entry
-  [entry-screen-form]
-  (-> (state/form->input-entry entry-screen-form)
-      (state/additional-entry) ;TODO we shouldnt depend on post-entry-form here, or do we?
-      (state/input-entry->data-entry)))
 
 (defn render-html [state owner]
   (reify
     om/IRender
     (render [_]
-      (let [entries (om/observe owner (state/entries))
-            entry-screen-form (om/observe owner (state/entry-screen-form))
-            selected-entry (get-selected-entry entry-screen-form)
-            selected-date (get-in entry-screen-form [:selected-date :date])]
+      (let [entries (om/observe owner (state/entries-cursor))
+            form (om/observe owner (state/entry-screen-form))
+
+            editing-entry-id (state/form-get-editing-entry-id form)]
         (render-graphic
           {:dispatch! (:dispatch! state)
-           :selected-entry (when selected-entry (:entry-id selected-entry))
-           :additional-entries (when selected-entry [selected-entry])
-           :project-data {:data entries
-                          :selected-date selected-date}})))))
+           :selected-entry editing-entry-id
+           :project-data {:data (state/entries-add-form-entry @entries @form)
+                          :selected-date (state/form-selected-date form)}})))))
 
 (defn render-tooltip
   [state owner]
   (reify
     om/IRender
     (render [_]
-      (let [entries (om/observe owner (state/entries))
+      (let [entries (om/observe owner (state/entries-cursor))
             mouse-over-entry (om/observe owner (state/mouse-over-entry))
-            entry-screen-form (om/observe owner (state/entry-screen-form))
+            form (om/observe owner (state/entry-screen-form))
 
-            selected-entry (get-selected-entry entry-screen-form)
-            project-data (merge-entries entries
-                                        (when selected-entry [selected-entry]))
             entry-id (:entry-id mouse-over-entry)
             {:keys [left top width]} (:pos mouse-over-entry)
-            comment (->> project-data
+            comment (->> (state/entries-add-form-entry entries form)
                          (filter #(= entry-id (:entry-id %)))
                          (first)
                          :comment)]
         (om/build tooltip-component
                   {:top top
-                   :records project-data
                    :left left
                    :width width
                    :comment comment})))))
