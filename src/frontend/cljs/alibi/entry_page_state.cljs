@@ -25,16 +25,6 @@
       (assoc-in (:initial-state view-data)
                 [:post-new-entry-bar :options-by-id] options-by-id))))
 
-(defn data-entry->input-entry [entry]
-  (when entry
-    {:selected-item {:task-id (:task-id entry)
-                     :project-id (:project-id entry)}
-     :selected-date (unix->date-str (:from entry))
-     :isBillable (:billable? entry)
-     :comment (:comment entry)
-     :startTime (unix->time-str (:from entry))
-     :endTime (unix->time-str (:till entry))
-     :entry-id (:entry-id entry)}))
 
 (def form-selected-date #(get-in % [:selected-date :date]))
 (def form-selected-task #(get-in % [:selected-task]))
@@ -47,6 +37,17 @@
 (def form-billable? #(get-in % [:post-entry-form :isBillable]))
 (def form-submitted? #(get-in % [:submitted?]))
 (def form-form-at-submit-time #(get-in % [:form-at-submit-time]))
+
+(defn form-data-entry->form [entry]
+  (when entry
+    {:selected-task {:task-id (:task-id entry)
+                     :project-id (:project-id entry)}
+     :selected-date {:date (unix->date-str (:from entry))}
+     :post-entry-form {:isBillable (:billable? entry)
+                       :comment (:comment entry)
+                       :startTime (unix->time-str (:from entry))
+                       :endTime (unix->time-str (:till entry))
+                       :entry-id (:entry-id entry)}}))
 
 (defn form->data-entry [form]
   (let [from (str->unix (form-selected-date form) (form-start-time form))

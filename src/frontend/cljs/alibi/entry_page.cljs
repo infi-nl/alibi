@@ -13,7 +13,7 @@
     [om.dom :as dom]
     [time.core :refer [unix->time-str unix->date-str]]
     [alibi.entry-page-state :refer [state task-name project-name
-                                    data-entry->input-entry
+                                    form-data-entry->form
                                     find-entry]]))
 
 (enable-console-print!)
@@ -41,10 +41,6 @@
 
       :cancel-entry empty-state
 
-      :edit-entry
-      (merge empty-state
-             (select-keys (:selected-entry next-state)
-                          [:comment :startTime :endTime :isBillable :entry-id]))
 
       prev-state)))
 
@@ -71,14 +67,12 @@
           (assoc prev-state :activity-graphic-mouse-over-entry {})
 
           :edit-entry
-          (let [entry (data-entry->input-entry
-                        (find-entry prev-state (:entry-id payload)))]
+          (let [form-entry (form-data-entry->form
+                             (find-entry prev-state (:entry-id payload)))]
 
             (-> prev-state
-                (assoc-in [:form :selected-date :date] (:selected-date entry))
-                (assoc-in [:form :selected-task] (:selected-item entry))
-                (assoc :activity-graphic-mouse-over-entry {})
-                (assoc :selected-entry entry)))
+                (assoc :form form-entry)
+                (assoc :activity-graphic-mouse-over-entry {})))
 
           :cancel-entry
           (-> prev-state
