@@ -13,16 +13,16 @@
 (defn parse-float [v] (js/parseFloat v))
 
 (defn active-errors
-  [input-entry]
-  (let [{:keys [formWasSubmitted]} input-entry]
-    (seq (when formWasSubmitted
-           (validate-input-entry input-entry)))))
+  [form]
+  (let [{:keys [submitted?]} form]
+    (seq (when submitted?
+           (validate-form form)))))
 
 (defn summary-errors
-  [input-entry]
-  (let [{:keys [formWasSubmitted submit-time-state]} input-entry]
-    (seq (when formWasSubmitted
-           (validate-input-entry submit-time-state)))))
+  [form]
+  (let [{:keys [submitted? form-at-submit-time]} form]
+    (seq (when submitted?
+           (validate-form form-at-submit-time)))))
 
 (defn on-form-submit [form on-error event]
   (log "submit")
@@ -30,7 +30,7 @@
     (when (seq errors)
       (do
         (.preventDefault event)
-        (on-error (state/form->input-entry form))))))
+        (on-error form)))))
 
 (defn datepicker [data owner]
   (let [get-elements
@@ -82,12 +82,13 @@
               #js {:className "glyphicon glyphicon-calendar"})))))))
 
 (defn validation-summary
-  [input-entry]
-  (let [summary-errors (summary-errors input-entry)]
+  [form]
+  (log "vs" form)
+  (let [summary-errors (summary-errors form)]
     (dom/div
       #js {:className
            (str "alert entry-form-errors"
-                (if (active-errors input-entry) " alert-danger" " alert-success")
+                (if (active-errors form) " alert-danger" " alert-success")
                 (when summary-errors " entry-form-errors-has-errors"))}
       "There is a problem with one or more fields in the form, please correct them:"
       (dom/ul
@@ -236,12 +237,12 @@
            :className "form-horizontal entry-form"
            :onSubmit (partial on-form-submit form
                               #(dispatch! {:action :entry-form-show-errors
-                                           :for-entry %}))}
+                                           :form %}))}
       (let [task (:selected-task form)]
         (dom/div
           #js {:className (string/join
                             " "
-                            [(when (summary-errors input-entry) "has-errors")
+                            [(when (summary-errors form) "has-errors")
                              (when (seq task) "entry-form-visible")])
                :id "entry-form-container"}
           (dom/input #js {:type "hidden" :name "selected-project-id"
@@ -254,7 +255,7 @@
             #js {:className "row"}
             (dom/div
               #js {:className "col-md-12"}
-              (validation-summary input-entry)
+              (validation-summary form)
               (dom/div
                 #js {:className "panel panel-default"}
                 (dom/div

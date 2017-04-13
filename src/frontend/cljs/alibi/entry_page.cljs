@@ -26,9 +26,7 @@
                      :endTime ""
                      :isBillable false
                      :comment ""
-                     :entry-id "new"
-                     :formWasSubmitted false
-                     :submit-time-state nil}]
+                     :entry-id "new"}]
     (case action
       :change-comment
       (assoc prev-state :comment (:comment payload))
@@ -43,11 +41,6 @@
       (assoc prev-state :isBillable (:billable? payload))
 
       :cancel-entry empty-state
-
-      :entry-form-show-errors
-      (assoc prev-state
-             :formWasSubmitted true
-             :submit-time-state (:for-entry payload))
 
       :edit-entry
       (merge empty-state
@@ -89,9 +82,20 @@
                 (assoc :selected-entry entry)))
 
           :cancel-entry
-          (assoc-in prev-state [:form :selected-task] {})
+          (-> prev-state
+              (update :form assoc
+                      :submitted? false
+                      :form-at-submit-time nil)
+              (assoc-in [:form :selected-task] {}))
+
+          :entry-form-show-errors
+          ; insert :form
+          (update prev-state :form assoc
+                  :submitted? true
+                  :form-at-submit-time (:form payload))
 
           prev-state)]
+    (log "ns"  next-state)
     (update-in next-state [:form :post-entry-form]
                entry-form-reducer payload next-state)))
 
