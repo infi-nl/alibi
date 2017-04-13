@@ -25,25 +25,6 @@
       (assoc-in (:initial-state view-data)
                 [:post-new-entry-bar :options-by-id] options-by-id))))
 
-(defn input-entry->data-entry
-  [entry]
-  (when entry
-    ;(log "entry %o" entry)
-    (let [from (str->unix (:selected-date entry) (:startTime entry))
-          till (str->unix (:selected-date entry) (:endTime entry))
-          duration (- till from)]
-      {:task-id (get-in entry [:selected-item :task-id])
-       :project-id (get-in entry [:selected-item :project-id])
-       :billable? (:isBillable entry)
-       :comment (:comment entry)
-       :user-id 0
-       :from from
-       :till till
-       :duration duration
-       :task (task-name (get-in entry [:selected-item :task-id]))
-       :project (project-name (get-in entry [:selected-item :project-id]))
-       :entry-id (:entry-id entry)})))
-
 (defn data-entry->input-entry [entry]
   (when entry
     {:selected-item {:task-id (:task-id entry)
@@ -54,11 +35,6 @@
      :startTime (unix->time-str (:from entry))
      :endTime (unix->time-str (:till entry))
      :entry-id (:entry-id entry)}))
-
-(defn form->input-entry [entry-screen-form]
-  (-> (:post-entry-form entry-screen-form)
-      (assoc :selected-date (get-in entry-screen-form [:selected-date :date])
-             :selected-item (get-in entry-screen-form [:selected-task]))))
 
 (def form-selected-date #(get-in % [:selected-date :date]))
 (def form-selected-task #(get-in % [:selected-task]))
@@ -71,6 +47,18 @@
 (def form-billable? #(get-in % [:post-entry-form :isBillable]))
 (def form-submitted? #(get-in % [:submitted?]))
 (def form-form-at-submit-time #(get-in % [:form-at-submit-time]))
+
+(defn form->data-entry [form]
+  (let [from (str->unix (form-selected-date form) (form-start-time form))
+        till (str->unix (form-selected-date form) (form-end-time form))
+        duration (- till from)]
+    {:task-id (form-selected-task-id form)
+     :project-id (form-selected-project-id form)
+     :billable? (form-billable? form) :comment (form-comment form)
+     :user-id 0 :from from :till till :duration duration
+     :task (task-name (form-selected-task-id form))
+     :project (project-name (form-selected-project-id form))
+     :entry-id (form-entry-id form)}))
 
 (defn form-validate-form [form]
   (let [validate
@@ -98,7 +86,7 @@
                  (update-in [:post-entry-form :startTime] expand-time)
                  (update-in [:post-entry-form :endTime] expand-time))]
     (when-not (seq (form-validate-form form))
-      (input-entry->data-entry (form->input-entry form)))))
+      (form->data-entry form))))
 
 (defn form-get-editing-entry-id [form]
   (:entry-id (form-get-editing-entry form)))

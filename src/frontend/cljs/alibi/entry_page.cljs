@@ -13,7 +13,6 @@
     [om.dom :as dom]
     [time.core :refer [unix->time-str unix->date-str]]
     [alibi.entry-page-state :refer [state task-name project-name
-                                    input-entry->data-entry
                                     data-entry->input-entry
                                     find-entry]]))
 
