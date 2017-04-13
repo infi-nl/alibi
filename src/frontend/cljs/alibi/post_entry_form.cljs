@@ -8,25 +8,22 @@
     [om.dom :as dom]
     [alibi.actions :as actions]
     [alibi.entry-page-state :as state
-     :refer [validate-input-entry validate-form]]))
+     :refer []]))
 
 (defn parse-float [v] (js/parseFloat v))
 
 (defn active-errors
   [form]
-  (let [{:keys [submitted?]} form]
-    (seq (when submitted?
-           (validate-form form)))))
+  (seq (when (state/form-submitted? form)
+         (state/form-validate-form form))))
 
 (defn summary-errors
   [form]
-  (let [{:keys [submitted? form-at-submit-time]} form]
-    (seq (when submitted?
-           (validate-form form-at-submit-time)))))
+  (seq (when (state/form-submitted? form)
+         (state/form-validate-form (state/form-form-at-submit-time form)))))
 
 (defn on-form-submit [form on-error event]
-  (log "submit")
-  (let [errors (validate-form form)]
+  (let [errors (state/form-validate-form form)]
     (when (seq errors)
       (do
         (.preventDefault event)
@@ -83,7 +80,6 @@
 
 (defn validation-summary
   [form]
-  (log "vs" form)
   (let [summary-errors (summary-errors form)]
     (dom/div
       #js {:className
@@ -109,18 +105,16 @@
          :onKeyDown #(when (= (.-keyCode %) 13)
                        (on-change (expand-time (.. % -target -value))))}))
 
-(defn date-time-entry-row [dispatch! input-entry]
-  (let [{:keys [startTime endTime selected-date entry-id]} input-entry
-        failed-fields (into {} (active-errors input-entry))
+(defn date-time-entry-row [dispatch! form]
+  (let [failed-fields (into {} (active-errors form))
         start-time-error? (failed-fields "Start time")
         end-time-error? (failed-fields "End time")
-        on-change-start-time (fn [start-time]
-                               (dispatch! {:action :change-start-time
-                                           :start-time start-time}))
-        on-change-end-time (fn [end-time]
-                             (dispatch! {:action :change-end-time
-                                         :end-time end-time}))
-        time-errors? (or start-time-error? end-time-error?)]
+        time-errors? (or start-time-error? end-time-error?)
+
+        on-change-start-time #(dispatch! {:action :change-start-time
+                                          :start-time %})
+        on-change-end-time #(dispatch! {:action :change-end-time
+                                        :end-time %})]
     (dom/div
       #js {:className "form-group"}
       (dom/label
@@ -134,7 +128,7 @@
             #js {:className "form-group"}
             (om/build datepicker
                       {:input-name "for-date"
-                       :selected-date selected-date
+                       :selected-date (state/form-selected-date form)
                        :onChangeDate #(dispatch!
                                         (actions/change-entry-page-date %))}))
           " "
@@ -143,14 +137,16 @@
                                  (when start-time-error?  " has-error"))}
             (dom/label #js {:htmlFor "start-time"} "From:")
             " "
-            (time-input "start-time" startTime on-change-start-time))
+            (time-input "start-time" (state/form-start-time form)
+                        on-change-start-time))
           " "
           (dom/div
             #js {:className (str "form-group"
                                  (when end-time-error? " has-error"))}
             (dom/label #js {:htmlFor "end-time"} "To:")
             " "
-            (time-input "end-time" endTime on-change-end-time))
+            (time-input "end-time" (state/form-end-time form)
+                        on-change-end-time))
           " "
           (dom/div #js {:className "form-group help-block"} "Use format 13:37")
           (dom/div
@@ -163,7 +159,7 @@
               (when end-time-error?
                 (dom/span nil (str "End time: " end-time-error?))))))))))
 
-(defn comment-row [dispatch! input-entry]
+(defn comment-row [dispatch! form]
   (dom/div
     #js {:className "form-group"}
     (dom/label
@@ -175,7 +171,7 @@
       (dom/input
         #js {:type "text"
              :name "comment"
-             :value (:comment input-entry)
+             :value (state/form-comment form)
              :onChange #(dispatch! {:action :change-comment
                                     :comment (.. % -target -value)})
              :id "comment"
@@ -184,7 +180,7 @@
         #js {:className "help-block"}
         "Provide any details that can help the customer understand what you've worked on."))))
 
-(defn billable?-row [dispatch! input-entry]
+(defn billable?-row [dispatch! form]
   (dom/div
     #js {:className "form-group"}
     (dom/div
@@ -198,13 +194,13 @@
             #js {:type "checkbox"
                  :id "billable"
                  :name "billable?"
-                 :checked (:isBillable input-entry)
+                 :checked (state/form-billable? form)
                  :onChange #(dispatch! {:action :change-billable?
                                         :billable? (.. % -target -checked)})})
           "This entry is billable")))))
 
-(defn btn-row [dispatch! input-entry]
-  (let [editing? (integer? (parse-float (:entry-id input-entry)))]
+(defn btn-row [dispatch! form]
+  (let [editing? (integer? (parse-float (state/form-entry-id form)))]
     (dom/div
       #js {:className "form-group"}
       (dom/div
@@ -230,42 +226,41 @@
 
 (defn render
   [dispatch! form]
-  (let [input-entry (state/form->input-entry form)]
-    (dom/form
-      #js {:method "post"
-           :action (str "/entry/" (get-in form [:selected-date :date]))
-           :className "form-horizontal entry-form"
-           :onSubmit (partial on-form-submit form
-                              #(dispatch! {:action :entry-form-show-errors
-                                           :form %}))}
-      (let [task (:selected-task form)]
+  (dom/form
+    #js {:method "post"
+         :action (str "/entry/" (state/form-selected-date form))
+         :className "form-horizontal entry-form"
+         :onSubmit (partial on-form-submit form
+                            #(dispatch! {:action :entry-form-show-errors
+                                         :form %}))}
+    (dom/div
+      #js {:className (string/join
+                        " "
+                        [(when (summary-errors form) "has-errors")
+                         (when (seq (state/form-selected-task form))
+                           "entry-form-visible")])
+           :id "entry-form-container"}
+      (dom/input #js {:type "hidden" :name "selected-project-id"
+                      :value (or (state/form-selected-project-id form) "")})
+      (dom/input #js {:type "hidden" :name "selected-task-id"
+                      :value (or (state/form-selected-task-id form) "")})
+      (dom/input #js {:type "hidden" :name "entry-id"
+                      :value (or (state/form-entry-id form) "")})
+      (dom/div
+        #js {:className "row"}
         (dom/div
-          #js {:className (string/join
-                            " "
-                            [(when (summary-errors form) "has-errors")
-                             (when (seq task) "entry-form-visible")])
-               :id "entry-form-container"}
-          (dom/input #js {:type "hidden" :name "selected-project-id"
-                          :value (:project-id task "")})
-          (dom/input #js {:type "hidden" :name "selected-task-id"
-                          :value (:task-id task "")})
-          (dom/input #js {:type "hidden" :name "entry-id"
-                          :value (get-in form [:post-entry-form :entry-id] "")})
+          #js {:className "col-md-12"}
+          (validation-summary form)
           (dom/div
-            #js {:className "row"}
+            #js {:className "panel panel-default"}
             (dom/div
-              #js {:className "col-md-12"}
-              (validation-summary form)
-              (dom/div
-                #js {:className "panel panel-default"}
-                (dom/div
-                  #js {:className "panel-body"}
-                  (dom/fieldset
-                    nil
-                    (date-time-entry-row dispatch! input-entry)
-                    (comment-row dispatch! input-entry)
-                    (billable?-row dispatch! input-entry)
-                    (btn-row dispatch! input-entry)))))))))))
+              #js {:className "panel-body"}
+              (dom/fieldset
+                nil
+                (date-time-entry-row dispatch! form)
+                (comment-row dispatch! form)
+                (billable?-row dispatch! form)
+                (btn-row dispatch! form)))))))))
 
 (defn om-component [for-state owner]
   (reify

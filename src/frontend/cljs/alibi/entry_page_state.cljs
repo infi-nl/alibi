@@ -60,6 +60,18 @@
       (assoc :selected-date (get-in entry-screen-form [:selected-date :date])
              :selected-item (get-in entry-screen-form [:selected-task]))))
 
+(def form-selected-date #(get-in % [:selected-date :date]))
+(def form-selected-task #(get-in % [:selected-task]))
+(def form-selected-task-id #(get-in % [:selected-task :task-id]))
+(def form-selected-project-id #(get-in % [:selected-task :project-id]))
+(def form-start-time #(get-in % [:post-entry-form :startTime]))
+(def form-end-time #(get-in % [:post-entry-form :endTime]))
+(def form-entry-id #(get-in % [:post-entry-form :entry-id]))
+(def form-comment #(get-in % [:post-entry-form :comment]))
+(def form-billable? #(get-in % [:post-entry-form :isBillable]))
+(def form-submitted? #(get-in % [:submitted?]))
+(def form-form-at-submit-time #(get-in % [:form-at-submit-time]))
+
 (defn validate-input-entry [{:keys [selected-item endTime startTime] :as form-state}]
   (let [validate
         (fn [f field-name msg errs]
@@ -83,7 +95,7 @@
               (compareTo (try-parse-time endTime))) 0)
         (conj ["End time" "End time should come after start time"])))))
 
-(def validate-form (comp validate-input-entry form->input-entry))
+(def form-validate-form (comp validate-input-entry form->input-entry))
 
 (defn additional-entry [input-entry]
   (let [input-entry' (-> input-entry

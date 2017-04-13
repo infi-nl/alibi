@@ -95,7 +95,6 @@
                   :form-at-submit-time (:form payload))
 
           prev-state)]
-    (log "ns"  next-state)
     (update-in next-state [:form :post-entry-form]
                entry-form-reducer payload next-state)))
 
