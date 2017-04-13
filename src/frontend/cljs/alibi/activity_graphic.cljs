@@ -725,14 +725,12 @@
     om/IRender
     (render [_]
       (let [entries (om/observe owner (state/entries-cursor))
-            form (om/observe owner (state/entry-screen-form-cursor))
-
-            editing-entry-id (state/form-get-editing-entry-id form)]
+            form (om/observe owner (state/entry-screen-form-cursor))]
         (render-graphic
           (:dispatch! state)
           (state/entries-add-form-entry @entries @form)
           (state/form-selected-date form)
-          editing-entry-id)))))
+          (state/form-get-editing-entry-id form))))))
 
 (defn render-tooltip
   [state owner]
