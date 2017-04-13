@@ -47,7 +47,7 @@
                                  (find "select")
                                  (get 0)
                                  -selectize))
-        post-new-entry-bar-state  (state/post-new-entry-bar)]
+        post-new-entry-bar-state  (state/post-new-entry-bar-cursor)]
     (reify
       om/IDidMount
       (did-mount [_]
@@ -86,7 +86,7 @@
 
       om/IDidUpdate
       (did-update [_ _ _]
-        (let [{:keys [project-id task-id]} (state/selected-task)
+        (let [{:keys [project-id task-id]} (state/selected-task-cursor)
               selectize (get-selectize)
               current-val (.getValue selectize)]
           (if (and project-id task-id)
@@ -99,10 +99,14 @@
       om/IRender
       (render [_]
         (log "rerendering")
-        (let [post-new-entry-bar-state (om/observe owner (state/post-new-entry-bar))
+        (let [post-new-entry-bar-state
+              (om/observe owner (state/post-new-entry-bar-cursor))
+
               options (:options post-new-entry-bar-state)
 
-              {:keys [project-id task-id]} (om/observe owner (state/selected-task))
+              {:keys [project-id task-id]}
+              (om/observe owner (state/selected-task-cursor))
+
               select-value (if (and project-id task-id)
                              (str project-id "," task-id) "")]
           (dom/form

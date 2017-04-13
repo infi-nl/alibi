@@ -109,16 +109,14 @@
          (filter #(= (:entry-id %) entry-id))
          first)))
 
-(defn selected-date []
-  (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-date])))
-(defn selected-task []
+(defn selected-task-cursor []
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-task])))
-(defn entry-screen-form []
+(defn entry-screen-form-cursor []
   (om/ref-cursor (:form (om/root-cursor state))))
 
 (defn entries-cursor []
   (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))
-(defn mouse-over-entry []
+(defn mouse-over-entry-cursor []
   (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))
-(defn post-new-entry-bar []
+(defn post-new-entry-bar-cursor []
   (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))

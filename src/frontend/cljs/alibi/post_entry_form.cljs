@@ -266,5 +266,5 @@
   (reify
     om/IRender
     (render [_]
-      (let [form (om/observe owner (state/entry-screen-form))]
+      (let [form (om/observe owner (state/entry-screen-form-cursor))]
         (render (:dispatch! for-state) @form)))))

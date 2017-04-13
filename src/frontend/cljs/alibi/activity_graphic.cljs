@@ -730,7 +730,7 @@
     om/IRender
     (render [_]
       (let [entries (om/observe owner (state/entries-cursor))
-            form (om/observe owner (state/entry-screen-form))
+            form (om/observe owner (state/entry-screen-form-cursor))
 
             editing-entry-id (state/form-get-editing-entry-id form)]
         (render-graphic
@@ -745,8 +745,8 @@
     om/IRender
     (render [_]
       (let [entries (om/observe owner (state/entries-cursor))
-            mouse-over-entry (om/observe owner (state/mouse-over-entry))
-            form (om/observe owner (state/entry-screen-form))
+            mouse-over-entry (om/observe owner (state/mouse-over-entry-cursor))
+            form (om/observe owner (state/entry-screen-form-cursor))
 
             entry-id (:entry-id mouse-over-entry)
             {:keys [left top width]} (:pos mouse-over-entry)
