@@ -30,11 +30,11 @@
 (def form-selected-task #(get-in % [:selected-task]))
 (def form-selected-task-id #(get-in % [:selected-task :task-id]))
 (def form-selected-project-id #(get-in % [:selected-task :project-id]))
-(def form-start-time #(get-in % [:post-entry-form :startTime]))
-(def form-end-time #(get-in % [:post-entry-form :endTime]))
+(def form-start-time #(get-in % [:post-entry-form :start-time]))
+(def form-end-time #(get-in % [:post-entry-form :end-time]))
 (def form-entry-id #(get-in % [:post-entry-form :entry-id]))
 (def form-comment #(get-in % [:post-entry-form :comment]))
-(def form-billable? #(get-in % [:post-entry-form :isBillable]))
+(def form-billable? #(get-in % [:post-entry-form :billable?]))
 (def form-submitted? #(get-in % [:submitted?]))
 (def form-form-at-submit-time #(get-in % [:form-at-submit-time]))
 
@@ -43,10 +43,10 @@
     {:selected-task {:task-id (:task-id entry)
                      :project-id (:project-id entry)}
      :selected-date {:date (unix->date-str (:from entry))}
-     :post-entry-form {:isBillable (:billable? entry)
+     :post-entry-form {:billable? (:billable? entry)
                        :comment (:comment entry)
-                       :startTime (unix->time-str (:from entry))
-                       :endTime (unix->time-str (:till entry))
+                       :start-time (unix->time-str (:from entry))
+                       :end-time (unix->time-str (:till entry))
                        :entry-id (:entry-id entry)}}))
 
 (defn form->data-entry [form]
@@ -84,8 +84,8 @@
 
 (defn form-get-editing-entry [form]
   (let [form (-> form
-                 (update-in [:post-entry-form :startTime] expand-time)
-                 (update-in [:post-entry-form :endTime] expand-time))]
+                 (update-in [:post-entry-form :start-time] expand-time)
+                 (update-in [:post-entry-form :end-time] expand-time))]
     (when-not (seq (form-validate-form form))
       (form->data-entry form))))
 
@@ -153,9 +153,9 @@
                           :submitted? false
                           :form-at-submit-time nil
                           :selected-task {}
-                          :post-entry-form {:startTime ""
-                                            :endTime ""
-                                            :isBillable false
+                          :post-entry-form {:start-time ""
+                                            :end-time ""
+                                            :billable? false
                                             :comment ""
                                             :entry-id "new"})
 
@@ -166,13 +166,13 @@
     :change-comment (assoc-in prev-state [:form :post-entry-form :comment]
                               (:comment payload))
 
-    :change-start-time (assoc-in prev-state [:form :post-entry-form :startTime]
+    :change-start-time (assoc-in prev-state [:form :post-entry-form :start-time]
                                  (:start-time payload))
 
-    :change-end-time (assoc-in prev-state [:form :post-entry-form :endTime]
+    :change-end-time (assoc-in prev-state [:form :post-entry-form :end-time]
                                (:end-time payload))
 
-    :change-billable? (assoc-in prev-state [:form :post-entry-form :isBillable]
+    :change-billable? (assoc-in prev-state [:form :post-entry-form :billable?]
                                 (:billable? payload))
 
     prev-state))
