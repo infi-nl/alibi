@@ -650,11 +650,9 @@
             ;(log "draw-result" (:els draw-result))
             ;(concat (:els grid) (:els draw-result)))))))
 
-(defn render-change-date-btns
-  [{:keys [dispatch!] :as state}]
+(defn render-change-date-btns [dispatch! selected-date]
   (let [on-change-date #(dispatch! (actions/change-entry-page-date %))
-        selected-date (.parse LocalDate
-                              (get-in state [:project-data :selected-date]))]
+        selected-date (.parse LocalDate selected-date)]
     (dom/div
       #js {:className "pull-right btn-group"}
       (dom/button
@@ -700,29 +698,26 @@
           (aset el "className" "tooltip top fade in"))))))
 
 (defn render-graphic
-  [{:keys [dispatch!
-           project-data
-           selected-entry] :as state}]
+  [dispatch! project-data selected-date selected-entry-id]
   ;(log "project-data %o" project-data)
-  (when (seq project-data)
-    (let [svg (render-svg
-                dispatch!
-                (:selected-date project-data)
-                (init-data (:data project-data))
-                #(dispatch! (actions/change-entry-page-date %))
-                {:selected-entry selected-entry})
+  (let [svg (render-svg
+              dispatch!
+              selected-date
+              (init-data project-data)
+              #(dispatch! (actions/change-entry-page-date %))
+              {:selected-entry selected-entry-id})
 
-          html (dom/div
-                 nil
+        html (dom/div
+               nil
+               (dom/div
+                 #js {:className "row"}
                  (dom/div
-                   #js {:className "row"}
-                   (dom/div
-                     #js {:className "col-md-12"}
-                     (render-change-date-btns state))
-                   (dom/div
-                     #js {:id "activity-svg-container"}
-                     svg)))]
-      html)))
+                   #js {:className "col-md-12"}
+                   (render-change-date-btns dispatch! selected-date))
+                 (dom/div
+                   #js {:id "activity-svg-container"}
+                   svg)))]
+    html))
 
 
 (defn render-html [state owner]
@@ -734,10 +729,10 @@
 
             editing-entry-id (state/form-get-editing-entry-id form)]
         (render-graphic
-          {:dispatch! (:dispatch! state)
-           :selected-entry editing-entry-id
-           :project-data {:data (state/entries-add-form-entry @entries @form)
-                          :selected-date (state/form-selected-date form)}})))))
+          (:dispatch! state)
+          (state/entries-add-form-entry @entries @form)
+          (state/form-selected-date form)
+          editing-entry-id)))))
 
 (defn render-tooltip
   [state owner]
