@@ -122,77 +122,57 @@
 (defn post-new-entry-bar-cursor []
   (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))
 
-
-(defn parse-float [v] (js/parseFloat v))
-
-(defn form-reducer
-  [prev-state {:keys [action] :as payload} next-state]
-  (let [empty-state {:startTime ""
-                     :endTime ""
-                     :isBillable false
-                     :comment ""
-                     :entry-id "new"}]
-    (case action
-      :change-comment
-      (assoc prev-state :comment (:comment payload))
-
-      :change-start-time
-      (assoc prev-state :startTime (:start-time payload))
-
-      :change-end-time
-      (assoc prev-state :endTime (:end-time payload))
-
-      :change-billable?
-      (assoc prev-state :isBillable (:billable? payload))
-
-      :cancel-entry empty-state
-
-
-      prev-state)))
-
 (defn reducer
   [prev-state {:keys [action] :as payload}]
   ;(log "reducer %o" payload)
-  (let [next-state
-        (case action
-          :select-task
-          (assoc-in prev-state [:form :selected-task] (:task payload))
+  (case action
+    :receive-activity-graphic-data
+    (-> prev-state
+        (assoc-in [:form :selected-date :date] (:for-date payload))
+        (assoc :activity-graphic-data (vec (:data payload))))
 
-          ;:change-date
-          ;(assoc-in prev-state [:post-entry-form :selectedDate] (:date payload))
+    :mouse-over-entry
+    (assoc prev-state :activity-graphic-mouse-over-entry (:entry payload))
 
-          :receive-activity-graphic-data
-          (-> prev-state
-              (assoc-in [:form :selected-date :date] (:for-date payload))
-              (assoc :activity-graphic-data (vec (:data payload))))
+    :mouse-leave-entry
+    (assoc prev-state :activity-graphic-mouse-over-entry {})
 
-          :mouse-over-entry
-          (assoc prev-state :activity-graphic-mouse-over-entry (:entry payload))
+    :edit-entry
+    (let [form-entry (-> (entries prev-state)
+                         (entries-find-entry (:entry-id payload))
+                         (form-data-entry->form))]
+      (-> prev-state
+          (assoc :form form-entry)
+          (assoc :activity-graphic-mouse-over-entry {})))
 
-          :mouse-leave-entry
-          (assoc prev-state :activity-graphic-mouse-over-entry {})
+    :select-task
+    (assoc-in prev-state [:form :selected-task] (:task payload))
 
-          :edit-entry
-          (let [form-entry (-> (entries prev-state)
-                               (entries-find-entry (:entry-id payload))
-                               (form-data-entry->form))]
-            (-> prev-state
-                (assoc :form form-entry)
-                (assoc :activity-graphic-mouse-over-entry {})))
 
-          :cancel-entry
-          (-> prev-state
-              (update :form assoc
-                      :submitted? false
-                      :form-at-submit-time nil)
-              (assoc-in [:form :selected-task] {}))
+    :cancel-entry (update prev-state :form assoc
+                          :submitted? false
+                          :form-at-submit-time nil
+                          :selected-task {}
+                          :post-entry-form {:startTime ""
+                                            :endTime ""
+                                            :isBillable false
+                                            :comment ""
+                                            :entry-id "new"})
 
-          :entry-form-show-errors
-          ; insert :form
-          (update prev-state :form assoc
-                  :submitted? true
-                  :form-at-submit-time (:form payload))
+    :entry-form-show-errors (update prev-state :form assoc
+                                    :submitted? true
+                                    :form-at-submit-time (:form payload))
 
-          prev-state)]
-    (update-in next-state [:form :post-entry-form]
-               form-reducer payload next-state)))
+    :change-comment (assoc-in prev-state [:form :post-entry-form :comment]
+                              (:comment payload))
+
+    :change-start-time (assoc-in prev-state [:form :post-entry-form :startTime]
+                                 (:start-time payload))
+
+    :change-end-time (assoc-in prev-state [:form :post-entry-form :endTime]
+                               (:end-time payload))
+
+    :change-billable? (assoc-in prev-state [:form :post-entry-form :isBillable]
+                                (:billable? payload))
+
+    prev-state))
