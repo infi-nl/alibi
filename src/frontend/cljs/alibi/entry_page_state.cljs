@@ -98,16 +98,17 @@
           form-entry)
     entries))
 
+(defn entries-find-entry [entries entry-id]
+  {:pre [(integer? entry-id)]}
+  (->> entries
+       (filter #(= (:entry-id %) entry-id))
+       first))
+
 (defonce state (atom (merge {:activity-graphic-data []
                              :activity-graphic-mouse-over-entry {}}
                             initial-state)))
 
-(defn find-entry [state entry-id]
-  {:pre [(integer? entry-id)]}
-  (let [ag-data (:activity-graphic-data state)]
-    (->> ag-data
-         (filter #(= (:entry-id %) entry-id))
-         first)))
+(def entries :activity-graphic-data)
 
 (defn selected-task-cursor []
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-task])))
@@ -120,3 +121,78 @@
   (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))
 (defn post-new-entry-bar-cursor []
   (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))
+
+
+(defn parse-float [v] (js/parseFloat v))
+
+(defn form-reducer
+  [prev-state {:keys [action] :as payload} next-state]
+  (let [empty-state {:startTime ""
+                     :endTime ""
+                     :isBillable false
+                     :comment ""
+                     :entry-id "new"}]
+    (case action
+      :change-comment
+      (assoc prev-state :comment (:comment payload))
+
+      :change-start-time
+      (assoc prev-state :startTime (:start-time payload))
+
+      :change-end-time
+      (assoc prev-state :endTime (:end-time payload))
+
+      :change-billable?
+      (assoc prev-state :isBillable (:billable? payload))
+
+      :cancel-entry empty-state
+
+
+      prev-state)))
+
+(defn reducer
+  [prev-state {:keys [action] :as payload}]
+  ;(log "reducer %o" payload)
+  (let [next-state
+        (case action
+          :select-task
+          (assoc-in prev-state [:form :selected-task] (:task payload))
+
+          ;:change-date
+          ;(assoc-in prev-state [:post-entry-form :selectedDate] (:date payload))
+
+          :receive-activity-graphic-data
+          (-> prev-state
+              (assoc-in [:form :selected-date :date] (:for-date payload))
+              (assoc :activity-graphic-data (vec (:data payload))))
+
+          :mouse-over-entry
+          (assoc prev-state :activity-graphic-mouse-over-entry (:entry payload))
+
+          :mouse-leave-entry
+          (assoc prev-state :activity-graphic-mouse-over-entry {})
+
+          :edit-entry
+          (let [form-entry (-> (entries prev-state)
+                               (entries-find-entry (:entry-id payload))
+                               (form-data-entry->form))]
+            (-> prev-state
+                (assoc :form form-entry)
+                (assoc :activity-graphic-mouse-over-entry {})))
+
+          :cancel-entry
+          (-> prev-state
+              (update :form assoc
+                      :submitted? false
+                      :form-at-submit-time nil)
+              (assoc-in [:form :selected-task] {}))
+
+          :entry-form-show-errors
+          ; insert :form
+          (update prev-state :form assoc
+                  :submitted? true
+                  :form-at-submit-time (:form payload))
+
+          prev-state)]
+    (update-in next-state [:form :post-entry-form]
+               form-reducer payload next-state)))
