@@ -7,7 +7,8 @@
     [om.core :as om]
     [om.dom :as dom]
     [alibi.actions :as actions]
-    [alibi.entry-page-state :as state :refer [validate-form]]))
+    [alibi.entry-page-state :as state
+     :refer [validate-input-entry validate-form]]))
 
 (defn parse-float [v] (js/parseFloat v))
 
@@ -15,21 +16,21 @@
   [input-entry]
   (let [{:keys [formWasSubmitted]} input-entry]
     (seq (when formWasSubmitted
-           (validate-form input-entry)))))
+           (validate-input-entry input-entry)))))
 
 (defn summary-errors
   [input-entry]
   (let [{:keys [formWasSubmitted submit-time-state]} input-entry]
     (seq (when formWasSubmitted
-           (validate-form submit-time-state)))))
+           (validate-input-entry submit-time-state)))))
 
-(defn on-form-submit [entry on-error event]
+(defn on-form-submit [form on-error event]
   (log "submit")
-  (let [errors (validate-form entry)]
+  (let [errors (validate-form form)]
     (when (seq errors)
       (do
         (.preventDefault event)
-        (on-error entry)))))
+        (on-error (state/form->input-entry form))))))
 
 (defn datepicker [data owner]
   (let [get-elements
@@ -228,30 +229,27 @@
 
 (defn render
   [dispatch! form]
-  (let [input-entry (state/form->input-entry' form)
-        {:keys [selected-date selected-item entry-id]} input-entry
-        {:keys [project-id task-id]} selected-item]
-    (when input-entry
-      ;(log "render-state" comment)
-      (dom/form
-        #js {:method "post"
-             :action (str "/entry/" selected-date)
-             :className "form-horizontal entry-form"
-             :onSubmit (partial on-form-submit input-entry
-                                #(dispatch! {:action :entry-form-show-errors
-                                             :for-entry %}))}
+  (let [input-entry (state/form->input-entry form)]
+    (dom/form
+      #js {:method "post"
+           :action (str "/entry/" (get-in form [:selected-date :date]))
+           :className "form-horizontal entry-form"
+           :onSubmit (partial on-form-submit form
+                              #(dispatch! {:action :entry-form-show-errors
+                                           :for-entry %}))}
+      (let [task (:selected-task form)]
         (dom/div
           #js {:className (string/join
                             " "
                             [(when (summary-errors input-entry) "has-errors")
-                             (when (seq selected-item) "entry-form-visible")])
+                             (when (seq task) "entry-form-visible")])
                :id "entry-form-container"}
           (dom/input #js {:type "hidden" :name "selected-project-id"
-                          :value (or project-id "")})
+                          :value (:project-id task "")})
           (dom/input #js {:type "hidden" :name "selected-task-id"
-                          :value (or task-id "")})
+                          :value (:task-id task "")})
           (dom/input #js {:type "hidden" :name "entry-id"
-                          :value (or entry-id "")})
+                          :value (get-in form [:post-entry-form :entry-id] "")})
           (dom/div
             #js {:className "row"}
             (dom/div

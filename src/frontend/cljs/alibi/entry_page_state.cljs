@@ -55,7 +55,12 @@
      :endTime (unix->time-str (:till entry))
      :entry-id (:entry-id entry)}))
 
-(defn validate-form [{:keys [selected-item endTime startTime] :as form-state}]
+(defn form->input-entry [entry-screen-form]
+  (-> (:post-entry-form entry-screen-form)
+      (assoc :selected-date (get-in entry-screen-form [:selected-date :date])
+             :selected-item (get-in entry-screen-form [:selected-task]))))
+
+(defn validate-input-entry [{:keys [selected-item endTime startTime] :as form-state}]
   (let [validate
         (fn [f field-name msg errs]
           (if (f form-state)
@@ -78,18 +83,15 @@
               (compareTo (try-parse-time endTime))) 0)
         (conj ["End time" "End time should come after start time"])))))
 
+(def validate-form (comp validate-input-entry form->input-entry))
+
 (defn additional-entry [input-entry]
   (let [input-entry' (-> input-entry
                        (update :startTime expand-time)
                        (update :endTime expand-time))]
-    (if-not (seq (validate-form input-entry'))
+    (if-not (seq (validate-input-entry input-entry'))
       input-entry'
       nil)))
-
-(defn form->input-entry [entry-screen-form]
-  (-> (:post-entry-form entry-screen-form)
-      (assoc :selected-date (get-in entry-screen-form [:selected-date :date])
-             :selected-item (get-in entry-screen-form [:selected-task]))))
 
 (defn form->input-entry' [form]
   (log "pre" form)
