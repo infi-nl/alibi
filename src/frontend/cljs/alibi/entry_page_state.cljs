@@ -80,12 +80,10 @@
             (conj errs [field-name msg])))
         errors
         (->> []
-             (validate #(seq (form-selected-task %)) "SelectedItem" "Task not selected")
-             (validate #(try-parse-time (form-start-time %))
-                       "Start time",
+             (validate (comp seq form-selected-task) "SelectedItem" "Task not selected")
+             (validate (comp try-parse-time form-start-time) "Start time",
                        "Please enter a valid time value (e.g. 13:37)")
-             (validate #(try-parse-time (form-end-time %))
-                       "End time",
+             (validate (comp try-parse-time form-end-time) "End time",
                        "Please enter a valid time value (e.g. 13:37)"))
         has-field-error? (into {} errors)]
     (if (or (has-field-error? "Start time") (has-field-error? "End time"))
