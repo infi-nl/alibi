@@ -674,8 +674,6 @@
     (reify
       om/IRender
       (render [_]
-
-          (log "rerendering tooltip-component")
         (dom/div
           #js
           {:style #js {:display (if (seq comment) "block" "none")}
@@ -701,7 +699,6 @@
 
 (defn render-graphic
   [dispatch! project-data selected-date selected-entry-id]
-  ;(log "project-data %o" project-data)
   (let [svg (render-svg
               dispatch!
               selected-date
@@ -726,8 +723,6 @@
   (reify
     om/IRender
     (render [_]
-
-          (log "rerendering ag render-html")
       (let [entries (om/observe owner (state/entries-cursor (get-state)))
             form (om/observe owner (state/entry-screen-form-cursor (get-state)))]
         (render-graphic
@@ -741,7 +736,6 @@
   (reify
     om/IRender
     (render [_]
-      (log "rerendering ag render-tooltip")
       (let [state (get-state)
             entries (om/observe owner (state/entries-cursor state))
             mouse-over-entry (om/observe owner

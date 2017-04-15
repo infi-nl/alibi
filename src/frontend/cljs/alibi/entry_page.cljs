@@ -23,7 +23,6 @@
 
 (let [current-state @state]
   (when-not (seq (state/entries current-state))
-    (log "fetching initial ag data")
     (dispatch! (actions/entries-load-data
                  (state/selected-date current-state)))))
 
@@ -39,7 +38,6 @@
     (reify
       om/IRender
       (render [_]
-        (log "rerendering root state")
         (om/build post-new-entry-bar/entry-bar-form component-state))))
   state
   {:target (js/document.getElementById "post-new-entry-bar-container")})
@@ -67,7 +65,7 @@
 (add-watch
   state :renderer
   (fn [_ _ _ new-state]
-    (log "new-state %o" new-state)
+    ;(log "new-state %o" new-state)
     (render-day-entry-table! new-state)))
 
 (reset! state @state)
