@@ -4,8 +4,8 @@
     [alibi.entry-page-state :as state]
     [time.core :as time]))
 
-(defn entries-receive-data [for-date data]
-  {:action :receive-activity-graphic-data
+(defn change-view-period [for-date data]
+  {:action :change-view-period
    :for-date for-date
    :data data})
 
@@ -27,6 +27,6 @@
         (state/entries-cache state)
         {:on-fetching #(dispatch! (entries-loading-cache monday-before))
          :on-fetched #(do (dispatch! (entries-load-cache monday-before %))
-                          (dispatch! (entries-receive-data date-str %)))}))))
+                          (dispatch! (change-view-period date-str %)))}))))
 
 (def entry-page-change-date entries-load-data)

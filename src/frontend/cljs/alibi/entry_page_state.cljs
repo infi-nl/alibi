@@ -126,7 +126,7 @@
   [prev-state {:keys [action] :as payload}]
   ;(log "reducer %o" payload)
   (case action
-    :receive-activity-graphic-data
+    :change-view-period
     (-> prev-state
         (assoc-in [:form :selected-date :date] (:for-date payload))
         (assoc :activity-graphic-data (vec (:data payload))))
