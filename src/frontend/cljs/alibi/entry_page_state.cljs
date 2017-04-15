@@ -110,16 +110,16 @@
 
 (def entries :activity-graphic-data)
 
-(defn selected-task-cursor []
+(defn selected-task-cursor [state]
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-task])))
-(defn entry-screen-form-cursor []
+(defn entry-screen-form-cursor [state]
   (om/ref-cursor (:form (om/root-cursor state))))
 
-(defn entries-cursor []
+(defn entries-cursor [state]
   (om/ref-cursor (:activity-graphic-data (om/root-cursor state))))
-(defn mouse-over-entry-cursor []
+(defn mouse-over-entry-cursor [state]
   (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))
-(defn post-new-entry-bar-cursor []
+(defn post-new-entry-bar-cursor [state]
   (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))
 
 (defn reducer

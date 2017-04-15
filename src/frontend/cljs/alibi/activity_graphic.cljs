@@ -722,29 +722,31 @@
     html))
 
 
-(defn render-html [state owner]
+(defn render-html [{:keys [dispatch! get-state]} owner]
   (reify
     om/IRender
     (render [_]
 
           (log "rerendering ag render-html")
-      (let [entries (om/observe owner (state/entries-cursor))
-            form (om/observe owner (state/entry-screen-form-cursor))]
+      (let [entries (om/observe owner (state/entries-cursor (get-state)))
+            form (om/observe owner (state/entry-screen-form-cursor (get-state)))]
         (render-graphic
-          (:dispatch! state)
+          dispatch!
           (state/entries-add-form-entry @entries @form)
           (state/form-selected-date form)
           (state/form-get-editing-entry-id form))))))
 
 (defn render-tooltip
-  [state owner]
+  [{:keys [get-state dispatch!]} owner]
   (reify
     om/IRender
     (render [_]
       (log "rerendering ag render-tooltip")
-      (let [entries (om/observe owner (state/entries-cursor))
-            mouse-over-entry (om/observe owner (state/mouse-over-entry-cursor))
-            form (om/observe owner (state/entry-screen-form-cursor))
+      (let [state (get-state)
+            entries (om/observe owner (state/entries-cursor state))
+            mouse-over-entry (om/observe owner
+                                         (state/mouse-over-entry-cursor state))
+            form (om/observe owner (state/entry-screen-form-cursor state))
 
             entry-id (:entry-id mouse-over-entry)
             {:keys [left top width]} (:pos mouse-over-entry)

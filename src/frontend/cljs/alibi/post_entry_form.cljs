@@ -263,10 +263,10 @@
                 (billable?-row dispatch! form)
                 (btn-row dispatch! form)))))))))
 
-(defn om-component [for-state owner]
+(defn om-component [{:keys [dispatch! get-state]} owner]
   (reify
     om/IRender
     (render [_]
       (log "pef om-component")
-      (let [form (om/observe owner (state/entry-screen-form-cursor))]
-        (render (:dispatch! for-state) @form)))))
+      (let [form (om/observe owner (state/entry-screen-form-cursor (get-state)))]
+        (render dispatch! @form)))))

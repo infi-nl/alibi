@@ -38,35 +38,36 @@
     (log "fetching initial ag data")
     (fetch-ag-data! (get-in current-state [:form :selected-date :date]))))
 
+(def component-state {:dispatch! (partial dispatch! state)
+                      :get-state (constantly state)})
+
 ; if you wonder why we introduce an itermediate IRender here: it seems Om
 ; ref-cursors only work if there is at least one om/root that binds to the root
 ; atom, so we do that here even though it is not passed on to om/build
 ; see also https://github.com/omcljs/om/issues/864
 (om/root
-  (let [dispatch! (partial dispatch! state)] ; make sure entry-bar-form gets a constant state
-    (fn [_ owner]
-      (reify
-        om/IRender
-        (render [_]
-          (log "rerendering root state")
-          (om/build post-new-entry-bar/entry-bar-form
-                    {:dispatch! dispatch!})))))
+  (fn [_ owner]
+    (reify
+      om/IRender
+      (render [_]
+        (log "rerendering root state")
+        (om/build post-new-entry-bar/entry-bar-form component-state))))
   state
   {:target (js/document.getElementById "post-new-entry-bar-container")})
 
 (om/root
   post-entry-form/om-component
-  {:dispatch! (partial dispatch! state)}
+  component-state
   {:target (js/document.getElementById "entry-form-react-container")})
 
 (om/root
   activity-graphic/render-html
-  {:dispatch! (partial dispatch! state)}
+  component-state
   {:target (js/document.getElementById "activity-graphic")})
 
 (om/root
   activity-graphic/render-tooltip
-  {:dispatch! (partial dispatch! state)}
+  component-state
   {:target (js/document.getElementById "activity-graphic-tooltip-container")})
 
 (defn render-day-entry-table!

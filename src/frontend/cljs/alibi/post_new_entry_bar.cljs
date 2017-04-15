@@ -42,12 +42,12 @@
          (escape-fn billing-method)
          "</span></div>")))
 
-(defn entry-bar-form [{:keys [dispatch!]} owner]
+(defn entry-bar-form [{:keys [dispatch! get-state]} owner]
   (let [get-selectize (fn [] (.. (js/$ (om/get-node owner "the-form"))
                                  (find "select")
                                  (get 0)
                                  -selectize))
-        post-new-entry-bar-state  (state/post-new-entry-bar-cursor)]
+        post-new-entry-bar-state  (state/post-new-entry-bar-cursor (get-state))]
     (reify
       om/IDidMount
       (did-mount [_]
@@ -86,7 +86,7 @@
 
       om/IDidUpdate
       (did-update [_ _ _]
-        (let [{:keys [project-id task-id]} (state/selected-task-cursor)
+        (let [{:keys [project-id task-id]} (state/selected-task-cursor (get-state))
               selectize (get-selectize)
               current-val (.getValue selectize)]
           (if (and project-id task-id)
@@ -100,12 +100,12 @@
       (render [_]
         (log "rerendering entry-bar-form")
         (let [post-new-entry-bar-state
-              (om/observe owner (state/post-new-entry-bar-cursor))
+              (om/observe owner (state/post-new-entry-bar-cursor (get-state)))
 
               options (:options post-new-entry-bar-state)
 
               {:keys [project-id task-id]}
-              (om/observe owner (state/selected-task-cursor))
+              (om/observe owner (state/selected-task-cursor (get-state)))
 
               select-value (if (and project-id task-id)
                              (str project-id "," task-id) "")]
