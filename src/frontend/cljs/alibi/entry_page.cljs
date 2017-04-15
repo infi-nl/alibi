@@ -13,8 +13,9 @@
     [om.dom :as dom]
     [time.core :refer [unix->time-str unix->date-str]]
     [alibi.entry-page-state :as state
-     :refer [state task-name project-name form-data-entry->form entries
-             entries-find-entry]]))
+     :refer [entries]]))
+
+(defonce state (atom state/initial-state))
 
 (enable-console-print!)
 

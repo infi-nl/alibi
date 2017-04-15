@@ -9,21 +9,22 @@
                       expand-time]]))
 
 (let [view-data-input (js/document.getElementById  "view-data")
-      view-data (cljs.reader/read-string
-                           (.-value view-data-input))]
+      view-data (cljs.reader/read-string (.-value view-data-input))]
   (def task-name (get-in view-data [:projects-tasks :tasks-by-id]))
   (def project-name (get-in view-data [:projects-tasks :projects-by-id]))
 
   (ag-ds/load! (:activity-graphic view-data))
 
   (def initial-state
-    (let [options (get-in (:initial-state view-data)
-                          [:post-new-entry-bar :options])
-          options-by-id (into {} (for [{:keys [value] :as opt} options]
-                                   [value opt]))]
+    (merge {:activity-graphic-data []
+            :activity-graphic-mouse-over-entry {}}
+           (let [options (get-in (:initial-state view-data)
+                                 [:post-new-entry-bar :options])
+                 options-by-id (into {} (for [{:keys [value] :as opt} options]
+                                          [value opt]))]
 
-      (assoc-in (:initial-state view-data)
-                [:post-new-entry-bar :options-by-id] options-by-id))))
+             (assoc-in (:initial-state view-data)
+                       [:post-new-entry-bar :options-by-id] options-by-id)))))
 
 
 (def form-selected-date #(get-in % [:selected-date :date]))
@@ -103,10 +104,6 @@
   (->> entries
        (filter #(= (:entry-id %) entry-id))
        first))
-
-(defonce state (atom (merge {:activity-graphic-data []
-                             :activity-graphic-mouse-over-entry {}}
-                            initial-state)))
 
 (def entries :activity-graphic-data)
 
