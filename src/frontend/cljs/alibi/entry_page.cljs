@@ -9,33 +9,25 @@
     [cljs.reader]
     [om.core :as om]
     [om.dom :as dom]
-    [alibi.entry-page-state :as state :refer [entries]]))
+    [alibi.entry-page-state :as state]
+    [alibi.actions :as actions]))
 
 (defonce state (atom state/initial-state))
 
 (enable-console-print!)
 
-(defn dispatch!
-  [state-atom action]
+(defn dispatch! [action]
   (if (fn? action)
-    (action (partial dispatch! state-atom) @state-atom)
-    (swap! state-atom state/reducer action)))
-
-(defn fetch-ag-data! [for-date]
-  (.then
-    (ag-ds/get-data (.toString (activity-graphic/find-first-monday for-date)))
-    (fn [data]
-      ;(log-cljs "received" for-date)
-      (dispatch! state {:action :receive-activity-graphic-data
-                        :for-date (.toString for-date)
-                        :data data}))))
+    (action dispatch! @state)
+    (swap! state state/reducer action)))
 
 (let [current-state @state]
-  (when-not (seq (entries current-state))
+  (when-not (seq (state/entries current-state))
     (log "fetching initial ag data")
-    (fetch-ag-data! (get-in current-state [:form :selected-date :date]))))
+    (dispatch! (actions/load-entries-data
+                 (state/selected-date current-state)))))
 
-(def component-state {:dispatch! (partial dispatch! state)
+(def component-state {:dispatch! dispatch!
                       :get-state (constantly state)})
 
 ; if you wonder why we introduce an itermediate IRender here: it seems Om

@@ -1,23 +1,19 @@
 (ns alibi.actions
   (:require
-     ;TODO remove dependency on ag here
-    [alibi.activity-graphic-data-source :as ag-ds]))
+    [alibi.activity-graphic-data-source :as ag-ds]
+    [time.core :as time]))
 
-(def LocalDate (. js/JSJoda -LocalDate))
-(def DayOfWeek (. js/JSJoda -DayOfWeek))
+(defn receive-entries-data [for-date data]
+  {:action :receive-activity-graphic-data
+   :for-date for-date
+   :data data})
 
-(defn find-first-monday [for-date]
-  (if (string? for-date) (recur (. LocalDate parse for-date))
-    (if (= (. for-date dayOfWeek) (.-MONDAY DayOfWeek))
-      for-date
-      (recur (. for-date plusDays -1)))))
-
-(defn change-entry-page-date [new-date]
+(defn load-entries-data [new-date]
   (fn [dispatch!]
-    (let [for-date (if (string? new-date) new-date (.toString new-date))]
+    (let [date-str (.toString new-date)]
       (.then
-        (ag-ds/get-data (.toString (find-first-monday for-date)))
+        (ag-ds/get-data (.toString (time/find-monday-before date-str)))
         (fn [data]
-          (dispatch! {:action :receive-activity-graphic-data
-                      :for-date (.toString for-date)
-                      :data data}))))))
+          (dispatch! (receive-entries-data date-str data)))))))
+
+(def change-entry-page-date load-entries-data)

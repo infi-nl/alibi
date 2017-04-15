@@ -105,8 +105,6 @@
        (filter #(= (:entry-id %) entry-id))
        first))
 
-(def entries :activity-graphic-data)
-
 (defn selected-task-cursor [state]
   (om/ref-cursor (get-in (om/root-cursor state) [:form :selected-task])))
 (defn entry-screen-form-cursor [state]
@@ -118,6 +116,10 @@
   (om/ref-cursor (:activity-graphic-mouse-over-entry (om/root-cursor state))))
 (defn post-new-entry-bar-cursor [state]
   (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))
+
+(def entries :activity-graphic-data)
+(def entry-screen-form :form)
+(def selected-date (comp form-selected-date entry-screen-form))
 
 (defn reducer
   [prev-state {:keys [action] :as payload}]
