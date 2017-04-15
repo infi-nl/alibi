@@ -179,4 +179,8 @@
                                   [:entries-cache (:for-date payload)]
                                   (:entries payload))
 
+    :entries-loading-cache (assoc-in prev-state
+                                  [:entries-cache (:for-date payload)]
+                                  :fetching)
+
     prev-state))
