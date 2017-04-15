@@ -6,14 +6,10 @@
     [alibi.activity-graphic :as activity-graphic]
     [alibi.activity-graphic-data-source :as ag-ds]
     [alibi.day-entry-table :as day-entry-table]
-    [clojure.string :refer [split]]
-    [time.core :refer [expand-time]]
     [cljs.reader]
     [om.core :as om]
     [om.dom :as dom]
-    [time.core :refer [unix->time-str unix->date-str]]
-    [alibi.entry-page-state :as state
-     :refer [entries]]))
+    [alibi.entry-page-state :as state :refer [entries]]))
 
 (defonce state (atom state/initial-state))
 
