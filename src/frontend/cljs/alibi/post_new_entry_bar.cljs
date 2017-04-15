@@ -1,11 +1,13 @@
 (ns alibi.post-new-entry-bar
-  (:require [cljsjs.react]
-            [cljsjs.react.dom]
-            [alibi.logging :refer [log log-cljs]]
-            [sablono.core :as sab]
-            [clojure.string :refer [split]]
-            [goog.string :as gstring]
-            [goog.string.format]))
+  (:require
+    [cljsjs.react]
+    [alibi.logging :refer [log log-cljs]]
+    [clojure.string :refer [split]]
+    [goog.string :as gstring]
+    [goog.string.format]
+    [om.core :as om]
+    [om.dom :as dom]
+    [alibi.entry-page-state :as state]))
 
 (defn parse-float [v]
   (js/parseFloat v))
@@ -13,13 +15,13 @@
 (defn parse-selected-item [v]
   (when (seq v)
     (let [[project-id task-id] (map parse-float (split v #","))]
-      {:projectId project-id
-       :taskId task-id})))
+      {:project-id project-id
+       :task-id task-id})))
 
-(defn selectize-score-fn [for-state search]
+(defn selectize-score-fn [options search]
   (let [default-score 0
         search-results (. js/fuzzy filter
-                          search (clj->js (:options for-state))
+                          search (clj->js options)
                           #js {:extract #(aget % "text")})
         score-by-option-value
         (into {}
@@ -40,100 +42,86 @@
          (escape-fn billing-method)
          "</span></div>")))
 
-(def entry-bar-form
-  (letfn [(get-selectize [this] (.. (js/$ (aget this "form"))
-                                     (find "select")
-                                     (get 0)
-                                     -selectize))]
-    (. js/React createClass
-      #js
-      {:componentWillUnmount
-       (fn []
-         (this-as
-           this
-           ;(log "will unmount")
-           (.destroy (get-selectize this))))
+(defn entry-bar-form [{:keys [dispatch! get-state]} owner]
+  (let [get-selectize (fn [] (.. (js/$ (om/get-node owner "the-form"))
+                                 (find "select")
+                                 (get 0)
+                                 -selectize))
+        post-new-entry-bar-state  (state/post-new-entry-bar-cursor (get-state))]
+    (reify
+      om/IDidMount
+      (did-mount [_]
+        (let [$form (js/$ (om/get-node owner "the-form"))
+              $select (.find $form "select")]
+          (.selectize
+            $select #js
+            {:highlight false
+             :selectOnTab true
+             :score (partial selectize-score-fn (:options post-new-entry-bar-state))
+             :render #js {:option (partial selectize-render-option
+                                           (:options-by-id post-new-entry-bar-state))
+                          :item (fn [i e] (selectize-render-option
+                                            (:options-by-id post-new-entry-bar-state)
+                                            i e "option-selected"))}})
+          (let [selectize (aget $select 0 "selectize")]
+            (.on selectize "dropdown_close"
+                 (fn []
+                   (let [value (.getValue selectize)]
+                     (.setTimeout ; updating the state will trigger a destroy
+                                  ; of selectize, which in turn will prevent
+                                  ; the dropdown_close event handlers from
+                                  ; complete correctly, so we schedule
+                                  ; updating the state for a later moment
+                                  js/window
+                                  (fn [] (if (seq value)
+                                           (dispatch!
+                                             {:action :select-task
+                                              :task (parse-selected-item value)})
+                                           (dispatch! {:action :cancel-entry})))
+                                  0)))))))
+      om/IWillUnmount
+      (will-unmount [_]
+        ;(log "will unmount")
+        (.destroy (get-selectize)))
 
-       :componentDidUpdate
-       (fn []
-         (this-as
-           this
-           (let [for-state (aget this "props" "clj-props")
-                 {:keys [projectId taskId]} (:selected-item for-state)
-                 selectize (get-selectize this)
-                 current-val (.getValue selectize)]
-             (if (and projectId taskId)
-               (let [new-val (str projectId "," taskId)]
-                 (when-not (= new-val current-val)
-                   (.clear selectize)
-                   (.addItem selectize new-val)))
-               (.clear selectize)))))
+      om/IDidUpdate
+      (did-update [_ _ _]
+        (let [{:keys [project-id task-id]} (state/selected-task-cursor (get-state))
+              selectize (get-selectize)
+              current-val (.getValue selectize)]
+          (if (and project-id task-id)
+            (let [new-val (str project-id "," task-id)]
+              (when-not (= new-val current-val)
+                (.clear selectize)
+                (.addItem selectize new-val)))
+            (.clear selectize))))
 
-       :componentDidMount
-       (fn []
-         (this-as
-           this
-           (let [for-state (aget this "props" "clj-props")
-                 $form (js/$ (aget this "form"))
-                 $select (.find $form "select")]
-             (.selectize
-               $select #js
-               {:highlight false
-                :selectOnTab true
-                :score (partial selectize-score-fn for-state)
-                :render #js {:option (partial selectize-render-option
-                                              (:options-by-id for-state))
-                             :item (fn [i e] (selectize-render-option
-                                               (:options-by-id for-state)
-                                               i e "option-selected"))}})
-             (let [selectize (aget $select 0 "selectize")]
-               (.on selectize "dropdown_close"
-                    (fn []
-                      (let [value (.getValue selectize)]
-                        (.setTimeout ; updating the state will trigger a destroy
-                                     ; of selectize, which in turn will prevent
-                                     ; the dropdown_close event handlers from
-                                     ; complete correctly, so we schedule
-                                     ; updating the state for a later moment
-                                     js/window
-                                     (fn [] (if (seq value)
-                                             ((:on-select-task for-state)
-                                              (parse-selected-item value))
-                                             ((:on-cancel for-state))))
-                                     0))))))))
+      om/IRender
+      (render [_]
+        (let [post-new-entry-bar-state
+              (om/observe owner (state/post-new-entry-bar-cursor (get-state)))
 
-       :shouldComponentUpdate
-       (fn [next-props]
-         (this-as
-           this
-           (let [next-state (aget next-props "clj-props")
-                 this-state (aget this "props" "clj-props")]
-             (not= (:selected-item next-state) (:selected-item this-state)))))
+              options (:options post-new-entry-bar-state)
 
-       :render
-       (fn []
-         (this-as
-           this
-           (let [for-state (aget this "props" "clj-props")
-                 options (:options for-state)
-                 {:keys [projectId taskId]} (:selected-item for-state)
-                 select-value (if (and projectId taskId)
-                                (str projectId "," taskId) "")]
-             (sab/html
-               [:form#post-new-entry-bar.navbar-form.navbar-form-post-new-entry-bar
-                {:ref (fn [form] (aset this "form" form))}
-                [:select
-                 {:name "post-new-entry-bar"
-                  :placeholder "Post new entry..."
-                  :defaultValue select-value}
-                 [:option
-                  {:value ""}
-                  ""]
-                 (map #(let [value (str (:project-id %) "," (:task-id %))]
-                         [:option
-                          {:key value
-                           :data-project-id (:project-id %)
-                           :data-task-id (:task-id %)
-                           :data-billing-method (:billing-method %)
-                           :value value}
-                          (:text %)]) options)]]))))})))
+              {:keys [project-id task-id]}
+              (om/observe owner (state/selected-task-cursor (get-state)))
+
+              select-value (if (and project-id task-id)
+                             (str project-id "," task-id) "")]
+          (dom/form
+            #js {:id "post-new-entry-bar"
+                 :className "navbar-form navbar-form-post-new-entry-bar"
+                 :ref "the-form"}
+            (dom/select
+              #js {:name "post-new-entry-bar"
+                   :placeholder "Post new entry..."
+                   :defaultValue select-value}
+              (dom/option #js {:value ""} "")
+              (map #(let [value (str (:project-id %) "," (:task-id %))]
+                      (dom/option
+                        #js {:key value
+                             :data-project-id (:project-id %)
+                             :data-task-id (:task-id %)
+                             :data-billing-method (:billing-method %)
+                             :value value}
+                        (:text %))) options))))))))

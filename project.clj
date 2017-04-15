@@ -80,9 +80,9 @@
                                    [org.clojure/clojurescript "1.9.229"]
                                    [org.clojure/core.async "0.2.391"
                                     :exclusions [org.clojure/tools.reader]]
-                                   [cljsjs/react "15.4.2-0"]
-                                   [cljsjs/react-dom "15.4.2-0"]
-                                   [sablono "0.7.7"]]
+                                   [cljsjs/react "0.13.3-0"]
+                                   [org.omcljs/om "0.9.0"
+                                    :exclusions [cljsjs/react]]]
                     :source-paths ["src" "dev" "src/frontend/cljs"]
                     :repl-options {:init (set! *print-length* 50)
                                    :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}

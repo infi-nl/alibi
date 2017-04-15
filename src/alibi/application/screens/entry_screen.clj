@@ -84,17 +84,17 @@
        {:projects-tasks (view-data-projects-tasks bookable-projects-and-tasks)
         :activity-graphic (view-data-activity-graphic for-date identity)
         :initial-state
-        {:post-new-entry-bar {:options (map bookable-project-task->option
-                                            bookable-projects-and-tasks)}
-         :selected-item (when (and (integer? selected-project-id)
-                                   (integer? selected-task-id))
-                          {:projectId selected-project-id
-                           :taskId selected-task-id})
-         :selected-date date-formatted
-         :post-entry-form {:startTime start-time
-                           :endTime end-time
-                           :isBillable billable?
-                           :comment comment}}})}))
+        {:form {:selected-date {:date date-formatted}
+                :post-entry-form {:start-time start-time
+                                  :end-time end-time
+                                  :billable? billable?
+                                  :comment comment}
+                :selected-task (if (and (integer? selected-project-id)
+                                        (integer? selected-task-id))
+                                 {:project-id selected-project-id
+                                  :task-id selected-task-id} {})}
+         :post-new-entry-bar {:options (map bookable-project-task->option
+                                            bookable-projects-and-tasks)}}})}))
 
 (defn- default-client-state
   [for-date identity selected-task-id]
