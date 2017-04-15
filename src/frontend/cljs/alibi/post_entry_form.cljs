@@ -131,7 +131,7 @@
                       {:input-name "for-date"
                        :selected-date (state/form-selected-date form)
                        :onChangeDate #(dispatch!
-                                        (actions/change-entry-page-date %))}))
+                                        (actions/entry-page-change-date %))}))
           " "
           (dom/div
             #js {:className (str "form-group"

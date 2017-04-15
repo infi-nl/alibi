@@ -13,11 +13,11 @@
   (def task-name (get-in view-data [:projects-tasks :tasks-by-id]))
   (def project-name (get-in view-data [:projects-tasks :projects-by-id]))
 
-  (ag-ds/load! (:activity-graphic view-data))
-
   (def initial-state
     (merge {:activity-graphic-data []
-            :activity-graphic-mouse-over-entry {}}
+            :activity-graphic-mouse-over-entry {}
+            :entries-cache (ag-ds/load-in-cache
+                             (:activity-graphic view-data) {})}
            (let [options (get-in (:initial-state view-data)
                                  [:post-new-entry-bar :options])
                  options-by-id (into {} (for [{:keys [value] :as opt} options]
@@ -118,6 +118,7 @@
   (om/ref-cursor (get-in (om/root-cursor state) [:post-new-entry-bar])))
 
 (def entries :activity-graphic-data)
+(def entries-cache :entries-cache)
 (def entry-screen-form :form)
 (def selected-date (comp form-selected-date entry-screen-form))
 
@@ -173,5 +174,9 @@
 
     :change-billable? (assoc-in prev-state [:form :post-entry-form :billable?]
                                 (:billable? payload))
+
+    :entries-load-cache (assoc-in prev-state
+                                  [:entries-cache (:for-date payload)]
+                                  (:entries payload))
 
     prev-state))

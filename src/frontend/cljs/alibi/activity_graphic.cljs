@@ -651,7 +651,7 @@
             ;(concat (:els grid) (:els draw-result)))))))
 
 (defn render-change-date-btns [dispatch! selected-date]
-  (let [on-change-date #(dispatch! (actions/change-entry-page-date %))
+  (let [on-change-date #(dispatch! (actions/entry-page-change-date %))
         selected-date (.parse LocalDate selected-date)]
     (dom/div
       #js {:className "pull-right btn-group"}
@@ -706,7 +706,7 @@
               dispatch!
               selected-date
               (init-data project-data)
-              #(dispatch! (actions/change-entry-page-date %))
+              #(dispatch! (actions/entry-page-change-date %))
               {:selected-entry selected-entry-id})
 
         html (dom/div

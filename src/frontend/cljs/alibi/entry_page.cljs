@@ -24,7 +24,7 @@
 (let [current-state @state]
   (when-not (seq (state/entries current-state))
     (log "fetching initial ag data")
-    (dispatch! (actions/load-entries-data
+    (dispatch! (actions/entries-load-data
                  (state/selected-date current-state)))))
 
 (def component-state {:dispatch! dispatch!

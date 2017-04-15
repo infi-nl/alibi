@@ -1,19 +1,32 @@
 (ns alibi.actions
   (:require
     [alibi.activity-graphic-data-source :as ag-ds]
+    [alibi.entry-page-state :as state]
     [time.core :as time]))
 
-(defn receive-entries-data [for-date data]
+(defn entries-receive-data [for-date data]
   {:action :receive-activity-graphic-data
    :for-date for-date
    :data data})
 
-(defn load-entries-data [new-date]
-  (fn [dispatch!]
-    (let [date-str (.toString new-date)]
-      (.then
-        (ag-ds/get-data (.toString (time/find-monday-before date-str)))
-        (fn [data]
-          (dispatch! (receive-entries-data date-str data)))))))
+(defn entries-load-cache [for-date entries]
+  {:action :entries-load-cache
+   :for-date for-date
+   :entries entries})
 
-(def change-entry-page-date load-entries-data)
+(defn entries-loading-cache [for-date]
+  {:action :entries-loading-cache
+   :for-date for-date})
+
+(defn entries-load-data [new-date]
+  (fn [dispatch! state]
+    (let [date-str (.toString new-date)
+          monday-before (.toString (time/find-monday-before date-str))]
+      (ag-ds/fetch-data
+        monday-before
+        (state/entries-cache state)
+        {:on-fetching #(dispatch! (entries-loading-cache monday-before))
+         :on-fetched #(do (dispatch! (entries-load-cache monday-before %))
+                          (dispatch! (entries-receive-data date-str %)))}))))
+
+(def entry-page-change-date entries-load-data)
