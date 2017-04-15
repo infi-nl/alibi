@@ -98,7 +98,7 @@
 
       om/IRender
       (render [_]
-        (log "rerendering")
+        (log "rerendering entry-bar-form")
         (let [post-new-entry-bar-state
               (om/observe owner (state/post-new-entry-bar-cursor))
 

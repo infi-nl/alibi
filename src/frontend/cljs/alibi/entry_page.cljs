@@ -48,6 +48,7 @@
       (reify
         om/IRender
         (render [_]
+          (log "rerendering root state")
           (om/build post-new-entry-bar/entry-bar-form
                     {:dispatch! dispatch!})))))
   state

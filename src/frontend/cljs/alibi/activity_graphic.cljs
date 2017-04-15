@@ -674,6 +674,8 @@
     (reify
       om/IRender
       (render [_]
+
+          (log "rerendering tooltip-component")
         (dom/div
           #js
           {:style #js {:display (if (seq comment) "block" "none")}
@@ -724,6 +726,8 @@
   (reify
     om/IRender
     (render [_]
+
+          (log "rerendering ag render-html")
       (let [entries (om/observe owner (state/entries-cursor))
             form (om/observe owner (state/entry-screen-form-cursor))]
         (render-graphic
@@ -737,6 +741,7 @@
   (reify
     om/IRender
     (render [_]
+      (log "rerendering ag render-tooltip")
       (let [entries (om/observe owner (state/entries-cursor))
             mouse-over-entry (om/observe owner (state/mouse-over-entry-cursor))
             form (om/observe owner (state/entry-screen-form-cursor))

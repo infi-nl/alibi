@@ -64,6 +64,7 @@
 
       om/IRender
       (render [_]
+      (log "rerendering datepicker")
         (dom/div
           #js {:className "input-group input-group-datepicker"
                :ref "element"}
@@ -266,5 +267,6 @@
   (reify
     om/IRender
     (render [_]
+      (log "pef om-component")
       (let [form (om/observe owner (state/entry-screen-form-cursor))]
         (render (:dispatch! for-state) @form)))))
