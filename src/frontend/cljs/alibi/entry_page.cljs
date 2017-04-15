@@ -61,13 +61,13 @@
 
 (defn render-day-entry-table!
   [for-state]
-  (let [new-date (get-in for-state [:form :selected-date :date])]
+  (let [new-date (state/selected-date for-state)]
     (day-entry-table/render "day-entry-table" new-date)))
 
 (add-watch
   state :renderer
   (fn [_ _ _ new-state]
-    ;(log "new-state %o" new-state)
+    (log "new-state %o" new-state)
     (render-day-entry-table! new-state)))
 
 (reset! state @state)
