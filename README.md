@@ -138,6 +138,7 @@ This project uses a lot of open source tooling, which I am graful for. In no par
 * JQuery
 * React
 * Leiningen
+* Om
 
 If you find your project in the source, but isn't listed: I'm sorry! Please drop me a note and I'll add yours.
 
