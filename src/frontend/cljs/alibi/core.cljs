@@ -3,6 +3,6 @@
             [alibi.post-entry-form]
             [alibi.post-new-entry-bar]
             [alibi.day-entry-table]
-            [alibi.entry-page]))
-
-
+            [alibi.entry-page]
+            [om.core :as om]
+            [om.dom :as dom]))
