@@ -80,6 +80,6 @@
   (let [entry (make-entry)
         entry-id (entry-repo/add-entry! entry)]
     (do
-      (entry-repo/delete-entry! entry-id)
+      (entry-repo/delete-entry! (entry-repo/find-entry entry-id))
       (is (empty? (db/query *db* ["select * from entries where id=?" entry-id]))
           "record should be deleted from db"))))

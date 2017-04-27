@@ -42,4 +42,4 @@
   (let [entry (entry-repo/find-entry entry-id)]
     (assert entry "Entry not found for user")
     (let [entry' (entry/delete-entry entry cmd)]
-      (entry-repo/delete-entry! entry-id))))
+      (entry-repo/delete-entry! entry'))))
