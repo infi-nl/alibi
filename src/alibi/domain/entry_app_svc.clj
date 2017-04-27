@@ -36,12 +36,10 @@
                      :old-task (task-repo/get (:task-id entry))
                      :new-task (task-repo/get (:task-id cmd)))))))
 
-(defn delete-entry! [as-identity {:keys [entry-id] :as cmd}]
-  {:pre [(integer? entry-id)
-         (integer? as-identity)]}
+(defn delete-entry!
+  [{:keys [entry-id] :as cmd}]
+  {:pre [(integer? entry-id)]}
   (let [entry (entry-repo/find-entry entry-id)]
     (assert entry "Entry not found for user")
-    (assert (= as-identity (:user-id entry))
-            "can only updates entries for yourself")
-    (let [entry' (entry/delete-entry entry)]
-      (entry-repo/delete-entry! (:entry-id entry')))))
+    (let [entry' (entry/delete-entry entry cmd)]
+      (entry-repo/delete-entry! entry-id))))

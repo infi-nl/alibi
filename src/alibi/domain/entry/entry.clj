@@ -75,7 +75,8 @@
    [entry {:keys [as-identity old-task task-id new-task] :as cmd}]
   {:pre [(empty? (validation-errs cmd {:start-time local-time?
                                        :end-time local-time?
-                                       :for-date local-date?}))
+                                       :for-date local-date?
+                                       :as-identity integer?}))
          (task? old-task)
          (or (not task-id) (task? new-task))]}
   (let [update-field (fn [entry k]
@@ -96,6 +97,9 @@
     entry'))
 
 
-(defn delete-entry [entry]
+(defn delete-entry [entry {:keys [as-identity] :as cmd}]
+  {:pre [(integer? as-identity)]}
+  (assert (= as-identity (:user-id entry))
+          "can only updates entries for yourself")
   (assert (not (:billed? entry)) "Can't delete an already billed entry")
   entry)

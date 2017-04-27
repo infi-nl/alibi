@@ -308,8 +308,8 @@
 (defn post-entry-then-delete []
   (let [post-cmd (make-valid-command)
         entry-id (svc/post-new-entry! post-cmd)]
-    (svc/delete-entry! (:user-id post-cmd)
-                       {:entry-id entry-id})
+    (svc/delete-entry! {:entry-id entry-id
+                        :as-identity (:user-id post-cmd)})
     entry-id))
 
 (deftest deleting-an-entry-makes-it-ungettable
@@ -321,7 +321,7 @@
   (let [entry-id (svc/post-new-entry! (make-valid-command))]
     (is (thrown-with-msg?
           AssertionError #"integer.*as-identity"
-          (svc/delete-entry! nil {:entry-id entry-id})))))
+          (svc/delete-entry! {:entry-id entry-id})))))
 
 (deftest cannot-delete-someone-elses-entry
   (let [kees (db-tools/new-user! {:name "kees"})
@@ -329,7 +329,8 @@
         post-cmd (make-valid-command {:user-id kees})
         entry-id (svc/post-new-entry! post-cmd)]
     (is (thrown? AssertionError
-                 (svc/delete-entry! harry {:entry-id entry-id}))
+                 (svc/delete-entry! {:entry-id entry-id
+                                     :as-identity harry}))
         "Should not be able to delete kees' record as harry")))
 
 (deftest cannot-delete-an-already-billed-entry
@@ -337,7 +338,8 @@
         entry-id (svc/post-new-entry! post-cmd)]
     (db-tools/bill-entry! entry-id)
     (is (thrown? AssertionError
-          (svc/delete-entry! (:user-id post-cmd) {:entry-id entry-id}))
+                 (svc/delete-entry! {:entry-id entry-id
+                                     :as-identity (:user-id post-cmd)}))
         "Should not be able to delete a billed entry")))
 
 
@@ -345,13 +347,14 @@
   (let [post-cmd (make-valid-command)
         entry-id (svc/post-new-entry! post-cmd)]
     (is (thrown? AssertionError
-                 (svc/delete-entry! (:user-id post-cmd) {:entry-id "qwe"}))
+                 (svc/delete-entry! {:entry-id "qwe"
+                                     :as-identity (:user-id post-cmd)}))
         "should thrown on non-integer entry-id")))
 
 (deftest when-deleting-non-existing-entry-it-should-throw
   (try
-    (svc/delete-entry! (db-tools/get-default-user-id)
-                       {:entry-id 123})
+    (svc/delete-entry! {:entry-id 123
+                        :as-identity (db-tools/get-default-user-id)})
     (is false "deleting a non existing entry should throw")
     (catch Throwable e
       (is (re-find #"Entry not found for user" (.getMessage e))

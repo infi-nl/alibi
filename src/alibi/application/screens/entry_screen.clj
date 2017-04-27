@@ -154,8 +154,8 @@
                           (:selected-task-id client-state))))
 
 (defn- delete-entry! [client-state]
-  (svc/delete-entry! (get-in client-state [:identity :id])
-                     {:entry-id (:entry-id client-state)})
+  (svc/delete-entry! {:entry-id (:entry-id client-state)
+                      :as-identity (get-in client-state [:identity :id])})
   (response/redirect (str "/entry/" (:for-date client-state))))
 
 (defn post
