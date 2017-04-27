@@ -78,7 +78,7 @@
                                        :end-time local-time?
                                        :for-date local-date?}))
          (task? old-task)
-         (or (nil? new-task) (task? new-task))]}
+         (or (not new-task) (task? new-task))]}
   (assert (not user-id) "you can't update the user-id for an hour entry")
   (let [updatable-fields #{:start-time :end-time :for-date :task-id :comment
                            :billable?}

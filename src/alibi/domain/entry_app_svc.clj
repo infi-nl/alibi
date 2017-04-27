@@ -32,41 +32,16 @@
   (let [task (task-repo/get task-id)]
     (entry/valid-billable? billable?-value task)))
 
-(defn validation-errs [m validators]
-  (reduce (fn [errs [k validator]]
-            (let [field-val (get m k)]
-              (if (and field-val (not (validator field-val)))
-                (conj errs k)
-                errs))) [] validators))
-
 (defn update-entry!
-  [as-identity
-   {:keys [entry-id start-time end-time user-id for-date task-id] :as cmd}]
-  {:pre [(empty? (validation-errs cmd {:start-time local-time?
-                                       :end-time local-time?
-                                       :for-date local-date?
-                                       :task-id valid-task?}))]}
-  (assert (not user-id) "you can't update the user-id for an hour entry")
-  (let [updatable-fields #{:start-time :end-time :for-date :task-id :comment
-                           :billable?}
-        entry (entry-repo/find-entry entry-id)
-        update-field (fn [entry k]
-                       (if (find cmd k)
-                         (assoc entry k (k cmd))
-                         entry))
-        entry' (reduce update-field entry updatable-fields)]
+  [as-identity cmd]
+  {:pre [(or (not (:task-id cmd)) (valid-task? (:task-id cmd)))]}
+  (let [{:keys [task-id]} cmd
+        entry (entry-repo/find-entry (:entry-id cmd))
+        old-task (task-repo/get (:task-id entry))
+        new-task (when task-id (task-repo/get task-id))]
     (assert (= as-identity (:user-id entry))
             "can only updates entries for yourself")
-    (assert (not (before? (:end-time entry') (:start-time entry')))
-            "start time can't come after end time")
-    (assert (not (:billed? entry))
-            "can not change an entry when it's already billed")
-    (assert (valid-billable-value-for-task? (:task-id entry')
-                                            (:billable? entry')))
-    (let [old-task (task-repo/get (:task-id entry))
-          new-task (when task-id (task-repo/get task-id))
-          entry' (entry/update-entry entry old-task new-task cmd)]
-      (entry-repo/save-entry! entry'))))
+    (entry-repo/save-entry! (entry/update-entry entry old-task new-task cmd))))
 
 (defn delete-entry! [as-identity {:keys [entry-id] :as cmd}]
   {:pre [(integer? entry-id)
