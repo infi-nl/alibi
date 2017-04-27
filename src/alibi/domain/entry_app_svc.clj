@@ -34,14 +34,17 @@
 
 (defn update-entry!
   [as-identity cmd]
-  {:pre [(or (not (:task-id cmd)) (valid-task? (:task-id cmd)))]}
-  (let [{:keys [task-id]} cmd
-        entry (entry-repo/find-entry (:entry-id cmd))
-        old-task (task-repo/get (:task-id entry))
-        new-task (when task-id (task-repo/get task-id))]
+  (let [task-id (:task-id cmd)
+        entry (entry-repo/find-entry (:entry-id cmd))]
+    (when task-id
+      (assert (valid-task? task-id)))
     (assert (= as-identity (:user-id entry))
             "can only updates entries for yourself")
-    (entry-repo/save-entry! (entry/update-entry entry old-task new-task cmd))))
+    (entry-repo/save-entry!
+      (entry/update-entry
+        entry (assoc cmd
+                     :old-task (task-repo/get (:task-id entry))
+                     :new-task (when task-id (task-repo/get task-id)))))))
 
 (defn delete-entry! [as-identity {:keys [entry-id] :as cmd}]
   {:pre [(integer? entry-id)

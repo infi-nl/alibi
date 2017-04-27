@@ -72,21 +72,20 @@
                 errs))) [] validators))
 
 (defn update-entry
-   [entry old-task new-task
-    {:keys [entry-id start-time end-time user-id for-date task-id] :as cmd}]
+   [entry {:keys [old-task new-task] :as cmd}]
   {:pre [(empty? (validation-errs cmd {:start-time local-time?
                                        :end-time local-time?
                                        :for-date local-date?}))
          (task? old-task)
          (or (not new-task) (task? new-task))]}
-  (assert (not user-id) "you can't update the user-id for an hour entry")
-  (let [updatable-fields #{:start-time :end-time :for-date :task-id :comment
-                           :billable?}
-        update-field (fn [entry k]
+  (let [update-field (fn [entry k]
                        (if (find cmd k)
                          (assoc entry k (k cmd))
                          entry))
-        entry' (reduce update-field entry updatable-fields)]
+        entry' (reduce update-field entry
+                       #{:start-time :end-time :for-date :task-id :comment
+                         :billable?})]
+    (assert (not (find cmd :user-id)) "you can't update the user-id for an hour entry")
     (assert (not (before? (:end-time entry') (:start-time entry')))
             "start time can't come after end time")
     (assert (not (:billed? entry))
