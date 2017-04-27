@@ -72,7 +72,7 @@
                 errs))) [] validators))
 
 (defn update-entry
-   [entry {:keys [old-task task-id new-task] :as cmd}]
+   [entry {:keys [as-identity old-task task-id new-task] :as cmd}]
   {:pre [(empty? (validation-errs cmd {:start-time local-time?
                                        :end-time local-time?
                                        :for-date local-date?}))
@@ -85,6 +85,8 @@
         entry' (reduce update-field entry
                        #{:start-time :end-time :for-date :task-id :comment
                          :billable?})]
+    (assert (= as-identity (:user-id entry))
+            "can only updates entries for yourself")
     (assert (not (find cmd :user-id)) "you can't update the user-id for an hour entry")
     (assert (not (before? (:end-time entry') (:start-time entry')))
             "start time can't come after end time")

@@ -136,8 +136,8 @@
 
 (defn- update-entry! [cs]
   (svc/update-entry!
-    (get-in cs [:identity :id])
-    {:entry-id (:entry-id cs)
+    {:as-identity (get-in cs [:identity :id])
+     :entry-id (:entry-id cs)
      :start-time (str->local-time (:start-time cs))
      :end-time (str->local-time (:end-time cs))
      :for-date (:for-date cs)

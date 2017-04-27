@@ -28,10 +28,8 @@
     (entry-repo/add-entry! entry)))
 
 (defn update-entry!
-  [as-identity cmd]
+  [cmd]
   (let [entry (entry-repo/find-entry (:entry-id cmd))]
-    (assert (= as-identity (:user-id entry))
-            "can only updates entries for yourself")
     (entry-repo/save-entry!
       (entry/update-entry
         entry (assoc cmd

@@ -420,22 +420,27 @@
 
 (defn is-valid-update-cmd
   [cmd msg & {:keys [with-create-cmd with-identity]}]
-  (do (svc/update-entry! (or with-identity (:user-id *defaults*))
-                        (valid-update-cmd-prepare-cmd cmd with-create-cmd))
+  (do (svc/update-entry!
+        (assoc
+          (valid-update-cmd-prepare-cmd cmd with-create-cmd)
+          :as-identity (or with-identity (:user-id *defaults*))))
       (is true msg)))
 
 (defn is-invalid-update-cmd
   [cmd msg & {:keys [with-create-cmd with-identity]}]
   (is (thrown? AssertionError
-               (svc/update-entry! (or with-identity (:user-id *defaults*))
-                 (valid-update-cmd-prepare-cmd cmd with-create-cmd))) msg))
+               (svc/update-entry!
+                 (assoc
+                   (valid-update-cmd-prepare-cmd cmd with-create-cmd)
+                   :as-identity (or with-identity (:user-id *defaults*)))) msg)))
 
 (defn update-ts-entry-and-assert
   [& {:keys [create-cmd update-cmd assert-fn]}]
   (let [ts-entry-id (svc/post-new-entry! (make-valid-command create-cmd))
         entry (entry-repo/find-entry ts-entry-id)]
-      (svc/update-entry! (:user-id *defaults*)
-                        (make-valid-update-command ts-entry-id update-cmd))
+      (svc/update-entry! (assoc
+                           (make-valid-update-command ts-entry-id update-cmd)
+                           :as-identity (:user-id *defaults*)))
       (assert-fn (entry-repo/find-entry ts-entry-id))))
 
 (defn update-ts-entry-and-assert-error
@@ -443,8 +448,9 @@
   (let [ts-entry-id (svc/post-new-entry! (make-valid-command create-cmd))
         entry (entry-repo/find-entry ts-entry-id)]
     (assert-fn #(svc/update-entry!
-                  (:user-id *defaults*)
-                  (make-valid-update-command ts-entry-id update-cmd)))))
+                  (assoc
+                    (make-valid-update-command ts-entry-id update-cmd)
+                    :as-identity (:user-id *defaults*))))))
 
 (defn test-update-is-billable-values
   [& {:keys [test-name allowed-is-billable-values cmd]}]
