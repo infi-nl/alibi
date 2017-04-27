@@ -136,8 +136,8 @@
 
 (defn- update-entry! [cs]
   (svc/update-entry!
-    (get-in cs [:identity :id])
-    {:entry-id (:entry-id cs)
+    {:as-identity (get-in cs [:identity :id])
+     :entry-id (:entry-id cs)
      :start-time (str->local-time (:start-time cs))
      :end-time (str->local-time (:end-time cs))
      :for-date (:for-date cs)
@@ -154,8 +154,8 @@
                           (:selected-task-id client-state))))
 
 (defn- delete-entry! [client-state]
-  (svc/delete-entry! (get-in client-state [:identity :id])
-                     {:entry-id (:entry-id client-state)})
+  (svc/delete-entry! {:entry-id (:entry-id client-state)
+                      :as-identity (get-in client-state [:identity :id])})
   (response/redirect (str "/entry/" (:for-date client-state))))
 
 (defn post

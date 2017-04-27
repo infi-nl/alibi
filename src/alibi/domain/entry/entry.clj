@@ -62,3 +62,44 @@
          (not (find cmd :billed?))]}
   (assert-valid-billable? billable? for-task)
   (hydrate-entry cmd))
+
+
+(defn validation-errs [m validators]
+  (reduce (fn [errs [k validator]]
+            (let [field-val (get m k)]
+              (if (and field-val (not (validator field-val)))
+                (conj errs k)
+                errs))) [] validators))
+
+(defn update-entry
+   [entry {:keys [as-identity old-task task-id new-task] :as cmd}]
+  {:pre [(empty? (validation-errs cmd {:start-time local-time?
+                                       :end-time local-time?
+                                       :for-date local-date?
+                                       :as-identity integer?}))
+         (task? old-task)
+         (or (not task-id) (task? new-task))]}
+  (let [update-field (fn [entry k]
+                       (if (find cmd k)
+                         (assoc entry k (k cmd))
+                         entry))
+        entry' (reduce update-field entry
+                       #{:start-time :end-time :for-date :task-id :comment
+                         :billable?})]
+    (assert (= as-identity (:user-id entry))
+            "can only updates entries for yourself")
+    (assert (not (find cmd :user-id)) "you can't update the user-id for an hour entry")
+    (assert (not (before? (:end-time entry') (:start-time entry')))
+            "start time can't come after end time")
+    (assert (not (:billed? entry))
+            "can not change an entry when it's already billed")
+    (assert (valid-billable? (:billable? entry') (or new-task old-task)))
+    entry'))
+
+
+(defn delete-entry [entry {:keys [as-identity] :as cmd}]
+  {:pre [(integer? as-identity)]}
+  (assert (= as-identity (:user-id entry))
+          "can only updates entries for yourself")
+  (assert (not (:billed? entry)) "Can't delete an already billed entry")
+  entry)

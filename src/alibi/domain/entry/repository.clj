@@ -18,8 +18,8 @@
 (defn find-entry [entry-id]
   (-find-entry *impl* entry-id))
 
-(defn delete-entry! [entry-id]
-  (-delete-entry! *impl* entry-id))
+(defn delete-entry! [entry]
+  (-delete-entry! *impl* (:entry-id entry)))
 
 (defn save-entry!
   [entry]

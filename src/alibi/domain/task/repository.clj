@@ -17,7 +17,8 @@
   (-task-exists? *impl* task-id))
 
 (defn get [task-id]
-  (-get *impl* task-id))
+  (when task-id
+    (-get *impl* task-id)))
 
 (defn add! [task]
   (-add! *impl* task))
