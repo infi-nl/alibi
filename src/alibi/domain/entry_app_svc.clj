@@ -27,11 +27,6 @@
         entry (entry/new-entry cmd :for-task task :for-project project)]
     (entry-repo/add-entry! entry)))
 
-(defn valid-billable-value-for-task?
-  [task-id billable?-value]
-  (let [task (task-repo/get task-id)]
-    (entry/valid-billable? billable?-value task)))
-
 (defn update-entry!
   [as-identity cmd]
   (let [task-id (:task-id cmd)
