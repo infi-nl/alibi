@@ -72,12 +72,12 @@
                 errs))) [] validators))
 
 (defn update-entry
-   [entry {:keys [old-task new-task] :as cmd}]
+   [entry {:keys [old-task task-id new-task] :as cmd}]
   {:pre [(empty? (validation-errs cmd {:start-time local-time?
                                        :end-time local-time?
                                        :for-date local-date?}))
          (task? old-task)
-         (or (not new-task) (task? new-task))]}
+         (or (not task-id) (task? new-task))]}
   (let [update-field (fn [entry k]
                        (if (find cmd k)
                          (assoc entry k (k cmd))
