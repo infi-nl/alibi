@@ -48,5 +48,5 @@
     (assert entry "Entry not found for user")
     (assert (= as-identity (:user-id entry))
             "can only updates entries for yourself")
-    (assert (not (:billed? entry)) "Can't delete an already billed entry")
-    (entry-repo/delete-entry! entry-id)))
+    (let [entry' (entry/delete-entry entry)]
+      (entry-repo/delete-entry! (:entry-id entry')))))

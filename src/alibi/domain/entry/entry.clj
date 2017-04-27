@@ -92,3 +92,8 @@
             "can not change an entry when it's already billed")
     (assert (valid-billable? (:billable? entry') (or new-task old-task)))
     entry'))
+
+
+(defn delete-entry [entry]
+  (assert (not (:billed? entry)) "Can't delete an already billed entry")
+  entry)
