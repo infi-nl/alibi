@@ -69,10 +69,12 @@
   (.toString (js/JSJoda.LocalDate.ofInstant (js/JSJoda.Instant.ofEpochSecond epoch))))
 
 (defn try-parse-time [v]
-  (try
-    (.. js/JSJoda -LocalTime (from (. time-formatter parse v)))
-    (catch js/Error e
-      nil)))
+  (when-not (= v "24:00") ; 24:00 is parsed to 0:00, everything above 24:00
+                          ; fails to parse
+    (try
+      (.. js/JSJoda -LocalTime (from (. time-formatter parse v)))
+      (catch js/Error e
+        nil))))
 
 (defn find-monday-before [for-date]
   (if (string? for-date) (recur (. LocalDate parse for-date))
