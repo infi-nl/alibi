@@ -79,6 +79,11 @@
                                        :as-identity integer?}))
          (task? old-task)
          (or (not task-id) (task? new-task))]}
+  (assert (= as-identity (:user-id entry))
+          "can only updates entries for yourself")
+  (assert (not (:billed? entry))
+          "can not change an entry when it's already billed")
+  (assert (not (find cmd :user-id)) "you can't update the user-id for an hour entry")
   (let [update-field (fn [entry k]
                        (if (find cmd k)
                          (assoc entry k (k cmd))
@@ -86,13 +91,8 @@
         entry' (reduce update-field entry
                        #{:start-time :end-time :for-date :task-id :comment
                          :billable?})]
-    (assert (= as-identity (:user-id entry))
-            "can only updates entries for yourself")
-    (assert (not (find cmd :user-id)) "you can't update the user-id for an hour entry")
     (assert (not (before? (:end-time entry') (:start-time entry')))
             "start time can't come after end time")
-    (assert (not (:billed? entry))
-            "can not change an entry when it's already billed")
     (assert (valid-billable? (:billable? entry') (or new-task old-task)))
     entry'))
 
