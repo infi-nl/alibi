@@ -35,8 +35,12 @@ module.exports = function(grunt) {
             cwd: 'node_modules/selectize/dist/',
             src: '**/*',
             dest: 'resources/public/dist/external/selectize/'
-          }
-          ]
+          },{
+            expand:true,
+            cwd: 'node_modules/fuzzy/lib/',
+            src: '**/*',
+            dest: 'resources/public/dist/external/fuzzy/'
+          }]
         }
       }
   });
