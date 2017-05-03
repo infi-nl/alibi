@@ -30,7 +30,13 @@ module.exports = function(grunt) {
             cwd: 'node_modules/font-awesome/',
             src: ['css/**/*','fonts/**/*'],
             dest: 'resources/public/dist/external/font-awesome/'
-          }]
+          },{
+            expand:true,
+            cwd: 'node_modules/selectize/dist/',
+            src: '**/*',
+            dest: 'resources/public/dist/external/selectize/'
+          }
+          ]
         }
       }
   });
