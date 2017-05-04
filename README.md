@@ -43,6 +43,7 @@ The prerequisites for this route are:
 - Have a git client installed.
 - Make sure Java is installed (leinigen, see next step, needs it).
 - Make sure [leiningen](https://leiningen.org/) is installed.
+- Have npm installed
 
 Clone the repo. Then, inside the repo, create a sqlite db:
 
@@ -81,6 +82,11 @@ lein with-profile local run projects create :name "Alibi" :billing-method :hourl
 # => Will return an id for the newly created project, use that for "1" in the following steps
 lein with-profile local run tasks create :name "Project management" :for-project 1 :billing-method :overhead
 lein with-profile local run tasks create :name "Programming" :for-project 1
+```
+
+Install client dependencies
+```
+npm install && ./node_modules/.bin/grunt copy
 ```
 
 Compile the ClojureScript:
@@ -139,6 +145,7 @@ This project uses a lot of open source tooling, which I am graful for. In no par
 * React
 * Leiningen
 * Om
+* Grunt
 
 If you find your project in the source, but isn't listed: I'm sorry! Please drop me a note and I'll add yours.
 
