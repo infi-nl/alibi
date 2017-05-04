@@ -9,7 +9,8 @@
     [alibi.datasource.sqlite.task-repo :as sqlite-task-repo]
     [alibi.datasource.sqlite.project-repo :as sqlite-project-repo]
     [alibi.datasource.sqlite.queries :as sqlite-queries]
-    [alibi.application.alibi-identity :as identity]))
+    [alibi.application.alibi-identity :as identity]
+    [alibi.domain.project.project :as project]))
 
 (def user-repo
   (reify
@@ -22,8 +23,9 @@
   `(let [db# ~db-spec]
      (entry-repo/with-impl (sqlite-entry-repo/new db#)
        (project-repo/with-impl (sqlite-project-repo/new db#)
-         (task-repo/with-impl (sqlite-task-repo/new db#)
-           (user-repo/with-impl user-repo
-             (identity/with-impl user-repo
-               (queries/with-handler (sqlite-queries/handler db#)
-                 ~@body))))))))
+          (project/with-repo-impl (sqlite-project-repo/new db#)
+            (task-repo/with-impl (sqlite-task-repo/new db#)
+              (user-repo/with-impl user-repo
+                (identity/with-impl user-repo
+                  (queries/with-handler (sqlite-queries/handler db#)
+                    ~@body)))))))))

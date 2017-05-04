@@ -19,3 +19,23 @@
   (hydrate-project {:project-id 0
                     :billing-method billing-method
                     :project-name project-name}))
+
+(def ^:private ^:dynamic *repo-implementation*)
+
+(defmacro with-repo-impl [impl & body]
+  `(binding [*repo-implementation* ~impl]
+     ~@body))
+
+(defprotocol ProjectRepository
+  (-get [this project-id])
+  (-add! [this project])
+  (-exists? [this project-id]))
+
+(defn get-project [project-id]
+  (-get *repo-implementation* project-id))
+
+(defn add-project! [project]
+  (-add! *repo-implementation* project))
+
+(defn project-exists? [project-id]
+  (-exists? *repo-implementation* project-id))
