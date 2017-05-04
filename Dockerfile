@@ -12,7 +12,9 @@ ENV ALIBI_VERSION=1.0.0 \
 WORKDIR ${ALIBI_INSTALL_DIR}
 RUN cd ${ALIBI_INSTALL_DIR}
 
-RUN apt update && apt install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+
+RUN apt update && apt install -y curl nodejs
 
 ## Install leiningen
 
@@ -30,6 +32,11 @@ COPY resources ${ALIBI_INSTALL_DIR}/resources
 COPY config ${ALIBI_INSTALL_DIR}/config
 COPY dev ${ALIBI_INSTALL_DIR}/dev
 COPY bin ${ALIBI_INSTALL_DIR}/bin
+COPY package.json ${ALIBI_INSTALL_DIR}/package.json
+COPY Gruntfile.js ${ALIBI_INSTALL_DIR}/
+
+## Install client dependencies
+RUN npm install && ./node_modules/.bin/grunt copy
 
 ## Build assets
 RUN lein cljsbuild once
