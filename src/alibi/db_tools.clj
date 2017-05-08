@@ -1,7 +1,6 @@
 (ns alibi.db-tools
   (:require
-    [alibi.domain.task.repository :as task-repo]
-    [alibi.domain.task.task :as task]
+    [alibi.domain.task :as task]
     [alibi.domain.entry.repository :as entry-repo]
     [alibi.domain.entry.entry :as entry]
     [alibi.infra.date-time
@@ -68,7 +67,7 @@
   ([task]
    (insert-task! nil task))
   ([project-id task]
-   (task-repo/add!
+   (task/add!
      (task/new-task
        {:for-project-id (or project-id (get-default-project-id))
         :task-name (:name task)

@@ -3,7 +3,7 @@
     [alibi.datasource.sqlite.migrations :as migrations]
     [alibi.domain.project :refer [new-project]]
     [alibi.datasource.sqlite.bootstrap :refer [with-sqlite]]
-    [alibi.domain.task.task :refer [new-task]]
+    [alibi.domain.task :refer [new-task]]
     [alibi.domain.entry.entry :as entry]
     [alibi.domain.user.repository :as user-repo]
     [alibi.infra.date-time :refer [->local-date ->local-time]]

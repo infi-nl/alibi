@@ -2,8 +2,7 @@
   (:require
     [alibi.db-tools :as db-tools]
     [alibi.domain.project :as project]
-    [alibi.domain.task.repository :as task-repo]
-    [alibi.domain.task.task :as task]
+    [alibi.domain.task :as task]
     [alibi.domain.entry.repository :as entry-repo]
     [alibi.domain.entry.entry :as entry]
     [alibi.domain.user.repository :as user-repo]

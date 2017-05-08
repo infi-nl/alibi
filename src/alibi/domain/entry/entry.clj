@@ -2,7 +2,7 @@
   (:require
     [alibi.infra.date-time
      :refer [local-time? before? local-date?]]
-    [alibi.domain.task.task :refer [task?]]
+    [alibi.domain.task :refer [task?]]
     [alibi.domain.project :refer [project?]]
     [alibi.domain.billing-method :as billing-method]
     [clojure.set :refer [rename-keys]]))

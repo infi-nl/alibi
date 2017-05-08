@@ -1,10 +1,10 @@
 (ns alibi.domain.task-admin-app-svc-test
   (:require
     [alibi.domain.task-admin-app-svc :as tasks]
-    [alibi.domain.task.repository :as tasks-repo]
     [clojure.test :refer [is testing]]
     [alibi.db-tools :as db-tools]
-    [alibi.test-helpers :refer [deftest copy-tests]]))
+    [alibi.test-helpers :refer [deftest copy-tests]]
+    [alibi.domain.task :as task]))
 
 (def ^:dynamic *defaults* nil)
 
@@ -13,7 +13,7 @@
                   {:task-name "a task"
                    :for-project-id (:project-id *defaults*)
                    :billing-method :hourly})
-        task (tasks-repo/get task-id)]
+        task (task/get task-id)]
     (is task "task should be in database")
     (when task
       (is (= "a task" (:name task)))
@@ -29,7 +29,7 @@
                         {:task-name (str "a " billing-method " task")
                          :for-project-id project-id
                          :billing-method billing-method})
-              task (tasks-repo/get task-id)]
+              task (task/get task-id)]
           (is (= billing-method (:billing-method task))))))))
 
 (deftest new-task-validations
