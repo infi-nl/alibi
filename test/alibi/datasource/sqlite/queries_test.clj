@@ -1,7 +1,7 @@
 (ns alibi.datasource.sqlite.queries-test
   (:require
     [alibi.domain.query-handler :refer [handle]]
-    [alibi.domain.project.repository :as project-repo]
+    [alibi.domain.project :as project]
     [alibi.domain.task.repository :as task-repo]
     [alibi.domain.entry.repository :as entry-repo]
     [clojure.test :refer [deftest is use-fixtures]]
@@ -18,7 +18,7 @@
 
 
 (defn insert-project-and-task! []
-  (let [project-id (project-repo/add! (make-project))
+  (let [project-id (project/add! (make-project))
         task-id (task-repo/add! (make-task {:for-project-id project-id}))]
     [project-id task-id]))
 

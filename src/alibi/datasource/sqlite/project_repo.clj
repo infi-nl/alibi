@@ -1,7 +1,6 @@
 (ns alibi.datasource.sqlite.project-repo
   (:require
-    [alibi.domain.project.repository :as project-repo]
-    [alibi.domain.project.project :refer [hydrate-project]]
+    [alibi.domain.project :as project :refer [hydrate-project]]
     [clojure.java.jdbc :as db]
     [alibi.datasource.sqlite.sqlite-helpers
      :refer [insert-id]]))
@@ -35,7 +34,8 @@
   (seq (db/query db-spec ["select id from projects where id=?" project-id])))
 
 (defn new [db-spec]
-  (reify project-repo/ProjectRepository
+  (reify
+    project/ProjectRepository
     (-get [this project-id] (get-project db-spec project-id))
     (-add! [this project] (add! db-spec project))
     (-exists? [this project-id] (exists? db-spec project-id))))

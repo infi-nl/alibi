@@ -4,7 +4,7 @@
     [alibi.infra.date-time
      :refer [->local-time ->local-date today]]
     [alibi.domain.entry.entry :as entry]
-    [alibi.domain.project.project :as project]
+    [alibi.domain.project :as project]
     [alibi.domain.task.task :as task]))
 
 (defn- valid-entry-data [m]

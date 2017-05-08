@@ -6,8 +6,7 @@
     [alibi.domain.entry.entry :as entry]
     [alibi.infra.date-time
      :refer [today ->local-time]]
-    [alibi.domain.project.repository :as project-repo]
-    [alibi.domain.project.project :as project]))
+    [alibi.domain.project :as project]))
 
 (def ^:dynamic *impl* nil)
 
@@ -80,7 +79,7 @@
         {:keys [with-tasks]} opts
 
         project-id
-        (project-repo/add! (project/new-project
+        (project/add! (project/new-project
                              {:project-name (:name project)
                               :billing-method (:billing-method project)}))]
     (doseq [task with-tasks]

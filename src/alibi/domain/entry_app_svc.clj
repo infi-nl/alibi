@@ -1,12 +1,12 @@
 (ns alibi.domain.entry-app-svc
   (:require
     [alibi.domain.task.repository :as task-repo]
-    [alibi.domain.project.repository :as project-repo]
     [alibi.domain.entry.repository :as entry-repo]
     [alibi.domain.user.repository :as user-repo]
     [alibi.domain.entry.entry :as entry]
     [alibi.infra.date-time :refer [local-time? before?
-                                                local-date?]]))
+                                   local-date?]]
+    [alibi.domain.project :as project]))
 
 (defn- valid-task? [task-id]
   (and
@@ -23,7 +23,7 @@
   {:pre [(valid-task? task-id)
          (valid-user? user-id)]}
   (let [task (task-repo/get task-id)
-        project (project-repo/get (:project-id task))
+        project (project/get (:project-id task))
         entry (entry/new-entry cmd :for-task task :for-project project)]
     (entry-repo/add-entry! entry)))
 

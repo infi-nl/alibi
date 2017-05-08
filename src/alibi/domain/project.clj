@@ -1,4 +1,5 @@
-(ns alibi.domain.project.project
+(ns alibi.domain.project
+  (:refer-clojure :exclude [get])
   (:require
     [alibi.domain.billing-method :refer [billing-method?]]
     [clojure.set :refer [rename-keys]]))
@@ -31,11 +32,11 @@
   (-add! [this project])
   (-exists? [this project-id]))
 
-(defn get-project [project-id]
+(defn get [project-id]
   (-get *repo-implementation* project-id))
 
-(defn add-project! [project]
+(defn add! [project]
   (-add! *repo-implementation* project))
 
-(defn project-exists? [project-id]
+(defn exists? [project-id]
   (-exists? *repo-implementation* project-id))

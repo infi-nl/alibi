@@ -1,7 +1,6 @@
 (ns alibi.datasource.sqlite.bootstrap
   (:require
     [alibi.domain.entry.repository :as entry-repo]
-    [alibi.domain.project.repository :as project-repo]
     [alibi.domain.task.repository :as task-repo]
     [alibi.domain.query-handler :as queries]
     [alibi.domain.user.repository :as user-repo]
@@ -10,7 +9,7 @@
     [alibi.datasource.sqlite.project-repo :as sqlite-project-repo]
     [alibi.datasource.sqlite.queries :as sqlite-queries]
     [alibi.application.alibi-identity :as identity]
-    [alibi.domain.project.project :as project]))
+    [alibi.domain.project :as project]))
 
 (def user-repo
   (reify
@@ -22,10 +21,9 @@
 (defmacro with-sqlite [db-spec & body]
   `(let [db# ~db-spec]
      (entry-repo/with-impl (sqlite-entry-repo/new db#)
-       (project-repo/with-impl (sqlite-project-repo/new db#)
-          (project/with-repo-impl (sqlite-project-repo/new db#)
-            (task-repo/with-impl (sqlite-task-repo/new db#)
-              (user-repo/with-impl user-repo
-                (identity/with-impl user-repo
-                  (queries/with-handler (sqlite-queries/handler db#)
-                    ~@body)))))))))
+       (project/with-repo-impl (sqlite-project-repo/new db#)
+         (task-repo/with-impl (sqlite-task-repo/new db#)
+           (user-repo/with-impl user-repo
+             (identity/with-impl user-repo
+               (queries/with-handler (sqlite-queries/handler db#)
+                 ~@body))))))))

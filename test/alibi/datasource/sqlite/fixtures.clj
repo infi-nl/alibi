@@ -1,7 +1,7 @@
 (ns alibi.datasource.sqlite.fixtures
   (:require
     [alibi.datasource.sqlite.migrations :as migrations]
-    [alibi.domain.project.project :refer [new-project]]
+    [alibi.domain.project :refer [new-project]]
     [alibi.datasource.sqlite.bootstrap :refer [with-sqlite]]
     [alibi.domain.task.task :refer [new-task]]
     [alibi.domain.entry.entry :as entry]

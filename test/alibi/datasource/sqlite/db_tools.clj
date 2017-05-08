@@ -1,8 +1,7 @@
 (ns alibi.datasource.sqlite.db-tools
   (:require
     [alibi.db-tools :as db-tools]
-    [alibi.domain.project.repository :as project-repo]
-    [alibi.domain.project.project :as project]
+    [alibi.domain.project :as project]
     [alibi.domain.task.repository :as task-repo]
     [alibi.domain.task.task :as task]
     [alibi.domain.entry.repository :as entry-repo]
