@@ -1,9 +1,9 @@
-(ns alibi.domain.entry.entry
+(ns alibi.domain.entry
   (:require
     [alibi.infra.date-time
      :refer [local-time? before? local-date?]]
-    [alibi.domain.task.task :refer [task?]]
-    [alibi.domain.project.project :refer [project?]]
+    [alibi.domain.task :refer [task?]]
+    [alibi.domain.project :refer [project?]]
     [alibi.domain.billing-method :as billing-method]
     [clojure.set :refer [rename-keys]]))
 
@@ -103,3 +103,29 @@
           "can only updates entries for yourself")
   (assert (not (:billed? entry)) "Can't delete an already billed entry")
   entry)
+
+
+(defprotocol EntryRepository
+  (-add-entry! [this entry])
+  (-find-entry [this entry-id])
+  (-save-entry! [this entry])
+  (-delete-entry! [this entry-id]))
+
+(def ^:private ^:dynamic *impl*)
+
+(defmacro with-impl [impl & body]
+  `(binding [*impl* ~impl]
+     ~@body))
+
+(defn add-entry! [entry]
+  (-add-entry! *impl* entry))
+
+(defn find-entry [entry-id]
+  (-find-entry *impl* entry-id))
+
+(defn delete-entry! [entry]
+  (-delete-entry! *impl* (:entry-id entry)))
+
+(defn save!
+  [entry]
+  (-save-entry! *impl* entry))

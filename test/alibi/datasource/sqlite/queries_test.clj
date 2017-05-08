@@ -1,13 +1,13 @@
 (ns alibi.datasource.sqlite.queries-test
   (:require
     [alibi.domain.query-handler :refer [handle]]
-    [alibi.domain.project.repository :as project-repo]
-    [alibi.domain.task.repository :as task-repo]
-    [alibi.domain.entry.repository :as entry-repo]
+    [alibi.domain.project :as project]
     [clojure.test :refer [deftest is use-fixtures]]
     [alibi.datasource.sqlite.fixtures
      :refer [sqlite-fixture *db* make-project make-task make-entry]]
-    [alibi.infra.date-time :refer [->local-date]]))
+    [alibi.infra.date-time :refer [->local-date]]
+    [alibi.domain.task :as task]
+    [alibi.domain.entry :as entry]))
 
 (def ^:dynamic *defaults* nil)
 
@@ -18,13 +18,13 @@
 
 
 (defn insert-project-and-task! []
-  (let [project-id (project-repo/add! (make-project))
-        task-id (task-repo/add! (make-task {:for-project-id project-id}))]
+  (let [project-id (project/add! (make-project))
+        task-id (task/add! (make-task {:for-project-id project-id}))]
     [project-id task-id]))
 
 (defn insert-entry! [for-date]
   (let [[_ task-id] (insert-project-and-task!)]
-    (entry-repo/add-entry!
+    (entry/add-entry!
       (make-entry {:task-id task-id
                    :for-date (->local-date for-date)
                    :user-id (:user-id *defaults*)}))))

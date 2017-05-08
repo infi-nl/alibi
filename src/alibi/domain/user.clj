@@ -1,4 +1,4 @@
-(ns alibi.domain.user.repository)
+(ns alibi.domain.user)
 
 (def ^:private ^:dynamic *implementation*)
 

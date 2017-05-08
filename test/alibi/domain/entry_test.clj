@@ -3,9 +3,9 @@
     [clojure.test :refer :all]
     [alibi.infra.date-time
      :refer [->local-time ->local-date today]]
-    [alibi.domain.entry.entry :as entry]
-    [alibi.domain.project.project :as project]
-    [alibi.domain.task.task :as task]))
+    [alibi.domain.entry :as entry]
+    [alibi.domain.project :as project]
+    [alibi.domain.task :as task]))
 
 (defn- valid-entry-data [m]
   (merge {:task-id 1

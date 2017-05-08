@@ -1,4 +1,5 @@
-(ns alibi.domain.project.project
+(ns alibi.domain.project
+  (:refer-clojure :exclude [get])
   (:require
     [alibi.domain.billing-method :refer [billing-method?]]
     [clojure.set :refer [rename-keys]]))
@@ -19,3 +20,23 @@
   (hydrate-project {:project-id 0
                     :billing-method billing-method
                     :project-name project-name}))
+
+(def ^:private ^:dynamic *repo-implementation*)
+
+(defmacro with-repo-impl [impl & body]
+  `(binding [*repo-implementation* ~impl]
+     ~@body))
+
+(defprotocol ProjectRepository
+  (-get [this project-id])
+  (-add! [this project])
+  (-exists? [this project-id]))
+
+(defn get [project-id]
+  (-get *repo-implementation* project-id))
+
+(defn add! [project]
+  (-add! *repo-implementation* project))
+
+(defn exists? [project-id]
+  (-exists? *repo-implementation* project-id))

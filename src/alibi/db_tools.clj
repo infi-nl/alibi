@@ -1,13 +1,10 @@
 (ns alibi.db-tools
   (:require
-    [alibi.domain.task.repository :as task-repo]
-    [alibi.domain.task.task :as task]
-    [alibi.domain.entry.repository :as entry-repo]
-    [alibi.domain.entry.entry :as entry]
+    [alibi.domain.task :as task]
+    [alibi.domain.entry :as entry]
     [alibi.infra.date-time
      :refer [today ->local-time]]
-    [alibi.domain.project.repository :as project-repo]
-    [alibi.domain.project.project :as project]))
+    [alibi.domain.project :as project]))
 
 (def ^:dynamic *impl* nil)
 
@@ -69,7 +66,7 @@
   ([task]
    (insert-task! nil task))
   ([project-id task]
-   (task-repo/add!
+   (task/add!
      (task/new-task
        {:for-project-id (or project-id (get-default-project-id))
         :task-name (:name task)
@@ -80,7 +77,7 @@
         {:keys [with-tasks]} opts
 
         project-id
-        (project-repo/add! (project/new-project
+        (project/add! (project/new-project
                              {:project-name (:name project)
                               :billing-method (:billing-method project)}))]
     (doseq [task with-tasks]
@@ -125,7 +122,7 @@
 
 (defn insert-entry! [entry]
   (let [entry (prepare-entry *impl* entry)]
-    (entry-repo/add-entry!
+    (entry/add-entry!
       (entry/hydrate-entry {:task-id (:task-id entry)
                             :for-date  (:for-date entry (today))
                             :start-time (->local-time (:start-time entry))

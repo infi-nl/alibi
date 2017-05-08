@@ -5,7 +5,7 @@
     [clojure.pprint :refer [pprint]]
     [alibi.datasource.sqlite.migrations :refer [apply-migrations!]]
     [alibi.domain.billing-method :refer [billing-method?]]
-    [alibi.domain.project.repository :as project-repo]))
+    [alibi.domain.project :as project]))
 
 (defn str->decimal [dec-str]
   (when dec-str
@@ -51,7 +51,7 @@
     (assert (or (billing-method? billing-method) (= :project billing-method))
             (str billing-method " not a valid billing method"))
 
-    (let [project (project-repo/get-project for-project)]
+    (let [project (project/get for-project)]
       (assert project (str "project " for-project " not found"))
 
       (let [cmd {:for-project-id for-project

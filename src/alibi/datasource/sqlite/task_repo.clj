@@ -1,7 +1,6 @@
 (ns alibi.datasource.sqlite.task-repo
   (:require
-    [alibi.domain.task.repository :as task-repo]
-    [alibi.domain.task.task :refer [hydrate-task]]
+    [alibi.domain.task :as task :refer [hydrate-task]]
     [alibi.datasource.sqlite.sqlite-helpers :refer [insert-id]]
     [alibi.domain.billing-method :refer [billing-method?]]
     [clojure.java.jdbc :as db]))
@@ -41,7 +40,7 @@
   (:project-id (get-task db-spec task-id)))
 
 (defn new [db-spec]
-  (reify task-repo/TaskRepository
+  (reify task/TaskRepository
     (-add! [this task] (add! db-spec task))
     (-task-exists? [this task-id] (task-exists? db-spec task-id))
     (-get [this task-id] (get-task db-spec task-id))

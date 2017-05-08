@@ -1,6 +1,6 @@
 (ns alibi.application.screens.entry-screen
   (:require
-    [alibi.domain.task.repository :refer [project-id-for-task-id]]
+    [alibi.domain.task :refer [project-id-for-task-id]]
     [alibi.domain.entry-app-svc :as svc]
     [bouncer.core :refer [validate]]
     [bouncer.validators :as v :refer [defvalidator]]

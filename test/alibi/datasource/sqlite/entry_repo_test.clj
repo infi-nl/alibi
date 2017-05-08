@@ -2,11 +2,11 @@
   (:require
     [clojure.test :refer [deftest is use-fixtures testing]]
     [clojure.java.jdbc :as db]
-    [alibi.domain.entry.repository :as entry-repo]
     [alibi.infra.date-time :refer [->local-date ->local-time]]
     [alibi.datasource.sqlite.fixtures
      :refer [sqlite-fixture *db* last-insert-rowid make-entry]]
-    [clojure.data :refer [diff]]))
+    [clojure.data :refer [diff]]
+    [alibi.domain.entry :as entry]))
 
 (defn insert-entry! [db entry]
   (-> (db/insert! *db* :entries entry)
@@ -17,7 +17,7 @@
 
 (deftest add-entry
   (let [entry-id
-        (entry-repo/add-entry!
+        (entry/add-entry!
           (make-entry
             {:task-id 1337 :for-date (->local-date "2017-02-03")
              :start-time (->local-time "12:00")
@@ -45,7 +45,7 @@
                          :user-id 42 :comment "allo world" :task-id 1337
                          :billable? true :billed? true :entry-id entry-id}
 
-        result (entry-repo/find-entry entry-id)]
+        result (entry/find-entry entry-id)]
     (is result (str "result not found for id " entry-id))
     (when result
       (testing "fields present in result"
@@ -60,14 +60,14 @@
                          :end_time "13:00" :user_id 42 :comment "allo world"
                          :task_id 1337 :is_billable 0 :is_billed 0})
 
-        updated-entry (assoc (entry-repo/find-entry entry-id)
+        updated-entry (assoc (entry/find-entry entry-id)
                              :for-date (->local-date "2017-03-03")
                              :start-time (->local-time "14:00")
                              :end-time (->local-time "15:00")
                              :comment "goodbye, world" :task-id 7331
                              :billable? true :billed? true)]
     (do
-      (entry-repo/save-entry! updated-entry)
+      (entry/save! updated-entry)
       (let [row (first (db/query
                          *db* ["select * from entries where id=?" entry-id]))]
         (is (= {:id entry-id :for_date "2017-03-03" :start_time "14:00"
@@ -78,8 +78,8 @@
 
 (deftest delete-entry
   (let [entry (make-entry)
-        entry-id (entry-repo/add-entry! entry)]
+        entry-id (entry/add-entry! entry)]
     (do
-      (entry-repo/delete-entry! (entry-repo/find-entry entry-id))
+      (entry/delete-entry! (entry/find-entry entry-id))
       (is (empty? (db/query *db* ["select * from entries where id=?" entry-id]))
           "record should be deleted from db"))))

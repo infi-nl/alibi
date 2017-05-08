@@ -1,13 +1,10 @@
 (ns alibi.datasource.sqlite.db-tools
   (:require
     [alibi.db-tools :as db-tools]
-    [alibi.domain.project.repository :as project-repo]
-    [alibi.domain.project.project :as project]
-    [alibi.domain.task.repository :as task-repo]
-    [alibi.domain.task.task :as task]
-    [alibi.domain.entry.repository :as entry-repo]
-    [alibi.domain.entry.entry :as entry]
-    [alibi.domain.user.repository :as user-repo]
+    [alibi.domain.project :as project]
+    [alibi.domain.task :as task]
+    [alibi.domain.entry :as entry]
+    [alibi.domain.user :as user-repo]
     [alibi.infra.date-time
      :refer [->local-time ->local-date today]]
     [clojure.java.jdbc :as db]))
@@ -49,8 +46,8 @@
       :id)))
 
 (defn bill-entry! [db-spec entry-id]
-  (let [entry (entry-repo/find-entry entry-id)]
-    (entry-repo/save-entry! (assoc entry :billed? true))))
+  (let [entry (entry/find-entry entry-id)]
+    (entry/save! (assoc entry :billed? true))))
 
 (defn get-default-task-id [db-spec]
   (-> (db/query db-spec "select id from tasks limit 1")

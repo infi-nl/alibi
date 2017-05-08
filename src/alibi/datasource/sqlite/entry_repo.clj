@@ -1,7 +1,6 @@
 (ns alibi.datasource.sqlite.entry-repo
   (:require
-    [alibi.domain.entry.repository :as entry-repo]
-    [alibi.domain.entry.entry :as entry]
+    [alibi.domain.entry :as entry]
     [clojure.java.jdbc :as db]
     [alibi.infra.date-time
      :refer [format-time ->local-time ->local-date]]
@@ -52,7 +51,8 @@
   (db/delete! db-spec :entries ["id=?" entry-id]))
 
 (defn new [db-spec]
-  (reify entry-repo/EntryRepository
+  (reify
+    entry/EntryRepository
     (-add-entry! [this entry] (add-entry! db-spec entry))
     (-find-entry [this entry-id] (find-entry db-spec entry-id))
     (-save-entry! [this entry] (save-entry! db-spec entry))

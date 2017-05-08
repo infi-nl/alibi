@@ -2,15 +2,15 @@
   (:require
     [clojure.test :refer [testing is use-fixtures]]
     [alibi.domain.entry-app-svc :as svc]
-    [alibi.domain.entry.repository :as entry-repo]
     [alibi.db-tools :as db-tools]
     [alibi.infra.date-time :refer [->local-time
-                                                ->local-date
-                                                today
-                                                date-equal?
-                                                time-equal?]]
+                                   ->local-date
+                                   today
+                                   date-equal?
+                                   time-equal?]]
     [clojure.set :refer [rename-keys difference]]
-    [alibi.test-helpers :refer [copy-tests deftest]]))
+    [alibi.test-helpers :refer [copy-tests deftest]]
+    [alibi.domain.entry :as entry]))
 
 (declare post-ts-entry-and-assert make-valid-command is-invalid-cmd
          is-valid-cmd test-post-billable?-values update-ts-entry-and-assert
@@ -314,7 +314,7 @@
 
 (deftest deleting-an-entry-makes-it-ungettable
   (let [entry-id (post-entry-then-delete)]
-    (is (not (entry-repo/find-entry entry-id))
+    (is (not (entry/find-entry entry-id))
         "should not be able get entry when deleted from db")))
 
 (deftest deleting-an-entry-identity-should-be-integer
@@ -408,7 +408,7 @@
   [cmd assert-fn]
   (let [cmd (make-valid-command cmd)
         ts-entry-id (svc/post-new-entry! cmd)
-        entry (entry-repo/find-entry ts-entry-id)]
+        entry (entry/find-entry ts-entry-id)]
     (when assert-fn
       (assert-fn entry))))
 
@@ -440,16 +440,16 @@
 (defn update-ts-entry-and-assert
   [& {:keys [create-cmd update-cmd assert-fn]}]
   (let [ts-entry-id (svc/post-new-entry! (make-valid-command create-cmd))
-        entry (entry-repo/find-entry ts-entry-id)]
+        entry (entry/find-entry ts-entry-id)]
       (svc/update-entry! (assoc
                            (make-valid-update-command ts-entry-id update-cmd)
                            :as-identity (:user-id *defaults*)))
-      (assert-fn (entry-repo/find-entry ts-entry-id))))
+      (assert-fn (entry/find-entry ts-entry-id))))
 
 (defn update-ts-entry-and-assert-error
   [& {:keys [create-cmd update-cmd assert-fn]}]
   (let [ts-entry-id (svc/post-new-entry! (make-valid-command create-cmd))
-        entry (entry-repo/find-entry ts-entry-id)]
+        entry (entry/find-entry ts-entry-id)]
     (assert-fn #(svc/update-entry!
                   (assoc
                     (make-valid-update-command ts-entry-id update-cmd)
