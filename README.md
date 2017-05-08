@@ -123,7 +123,7 @@ Alibi should now be running at http://localhost:3500.
 
 ## Acknowledgements
 
-This project uses a lot of open source tooling, which I am graful for. In no particular order:
+This project uses a lot of open source tooling, which I am grateful for. In no particular order:
 
 * Clojure(Script)
 * ring
