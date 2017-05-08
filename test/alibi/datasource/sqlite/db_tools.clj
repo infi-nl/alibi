@@ -5,7 +5,7 @@
     [alibi.domain.task :as task]
     [alibi.domain.entry.repository :as entry-repo]
     [alibi.domain.entry.entry :as entry]
-    [alibi.domain.user.repository :as user-repo]
+    [alibi.domain.user :as user-repo]
     [alibi.infra.date-time
      :refer [->local-time ->local-date today]]
     [clojure.java.jdbc :as db]))

@@ -1,7 +1,7 @@
 (ns alibi.domain.entry-app-svc
   (:require
     [alibi.domain.entry.repository :as entry-repo]
-    [alibi.domain.user.repository :as user-repo]
+    [alibi.domain.user :as user-repo]
     [alibi.domain.entry.entry :as entry]
     [alibi.infra.date-time :refer [local-time? before?
                                    local-date?]]

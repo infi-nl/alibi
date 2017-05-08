@@ -2,7 +2,7 @@
   (:require
     [alibi.domain.entry.repository :as entry-repo]
     [alibi.domain.query-handler :as queries]
-    [alibi.domain.user.repository :as user-repo]
+    [alibi.domain.user :as user-repo]
     [alibi.datasource.sqlite.entry-repo :as sqlite-entry-repo]
     [alibi.datasource.sqlite.task-repo :as sqlite-task-repo]
     [alibi.datasource.sqlite.project-repo :as sqlite-project-repo]
