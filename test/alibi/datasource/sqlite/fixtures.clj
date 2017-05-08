@@ -4,7 +4,7 @@
     [alibi.domain.project :refer [new-project]]
     [alibi.datasource.sqlite.bootstrap :refer [with-sqlite]]
     [alibi.domain.task :refer [new-task]]
-    [alibi.domain.entry.entry :as entry]
+    [alibi.domain.entry :as entry]
     [alibi.domain.user :as user-repo]
     [alibi.infra.date-time :refer [->local-date ->local-time]]
     [alibi.db-tools :as db-tools]

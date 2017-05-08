@@ -1,8 +1,7 @@
 (ns alibi.domain.entry-app-svc
   (:require
-    [alibi.domain.entry.repository :as entry-repo]
     [alibi.domain.user :as user-repo]
-    [alibi.domain.entry.entry :as entry]
+    [alibi.domain.entry :as entry]
     [alibi.infra.date-time :refer [local-time? before?
                                    local-date?]]
     [alibi.domain.project :as project]
@@ -25,12 +24,12 @@
   (let [task (task/get task-id)
         project (project/get (:project-id task))
         entry (entry/new-entry cmd :for-task task :for-project project)]
-    (entry-repo/add-entry! entry)))
+    (entry/add-entry! entry)))
 
 (defn update-entry!
   [cmd]
-  (let [entry (entry-repo/find-entry (:entry-id cmd))]
-    (entry-repo/save-entry!
+  (let [entry (entry/find-entry (:entry-id cmd))]
+    (entry/save!
       (entry/update-entry
         entry (assoc cmd
                      :old-task (task/get (:task-id entry))
@@ -39,7 +38,7 @@
 (defn delete-entry!
   [{:keys [entry-id] :as cmd}]
   {:pre [(integer? entry-id)]}
-  (let [entry (entry-repo/find-entry entry-id)]
+  (let [entry (entry/find-entry entry-id)]
     (assert entry "Entry not found for user")
     (let [entry' (entry/delete-entry entry cmd)]
-      (entry-repo/delete-entry! entry'))))
+      (entry/delete-entry! entry'))))

@@ -1,8 +1,7 @@
 (ns alibi.db-tools
   (:require
     [alibi.domain.task :as task]
-    [alibi.domain.entry.repository :as entry-repo]
-    [alibi.domain.entry.entry :as entry]
+    [alibi.domain.entry :as entry]
     [alibi.infra.date-time
      :refer [today ->local-time]]
     [alibi.domain.project :as project]))
@@ -123,7 +122,7 @@
 
 (defn insert-entry! [entry]
   (let [entry (prepare-entry *impl* entry)]
-    (entry-repo/add-entry!
+    (entry/add-entry!
       (entry/hydrate-entry {:task-id (:task-id entry)
                             :for-date  (:for-date entry (today))
                             :start-time (->local-time (:start-time entry))
