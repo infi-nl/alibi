@@ -151,6 +151,6 @@ If you find your project in the source, but isn't listed: I'm sorry! Please drop
 
 ## License
 
-Copyright © 2017 Infi Holding B.V. and contributers.
+Copyright © 2017 Infi Holding B.V. and contributors.
 
 Distributed under the Mozilla Public License Version 2.0
