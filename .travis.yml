@@ -1,0 +1,15 @@
+lein: lein
+
+addons:
+  apt:
+    packages:
+    - sqlite3
+
+services:
+  - mysql
+
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS alibi;'
+
+script:
+  - bin/build-and-test.sh
