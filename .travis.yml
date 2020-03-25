@@ -1,0 +1,9 @@
+lein: lein
+
+addons:
+  apt:
+    packages:
+    - sqlite3
+
+script:
+  - bin/build-and-test.sh

@@ -23,7 +23,7 @@
                  [org.xerial/sqlite-jdbc "3.16.1"]]
   :repl-options {:init-ns user}
   :plugins [[lein-ring "0.9.7"] 
-            [cider/cider-nrepl "0.10.0"]
+            [cider/cider-nrepl "0.22.1"]
             [lein-pprint "1.1.1"]
             [lein-figwheel "0.5.8"]
             [lein-cljsbuild "1.1.4" :exclusions [[org.clojure/clojure]]]]
