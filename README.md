@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/infi-nl/alibi.svg?branch=master)](https://travis-ci.org/infi-nl/alibi)
+
 # Alibi Time Tracker
 
 A time tracker for developers, written in Clojure.
