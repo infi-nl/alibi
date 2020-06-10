@@ -130,7 +130,7 @@ This project uses a lot of open source tooling, which I am grateful for. In no p
 * Clojure(Script)
 * ring
 * compojure
-* celmer
+* selmer
 * clj-time
 * bouncer
 * MySQL
