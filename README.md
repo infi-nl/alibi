@@ -2,6 +2,8 @@
 
 # Alibi Time Tracker
 
+> ⚠️ This project is archived and not getting any (security) updates at the moment. It will remain available and public as an (possibly somewhat outdated) example of how to use Clojure and related tools.
+
 A time tracker for developers, written in Clojure.
 
 ![Alibi screenshot](docs/screenshot-2.png)
